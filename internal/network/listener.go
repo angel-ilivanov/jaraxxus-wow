@@ -1,28 +1,21 @@
-package main
+package network
 
 import (
 	"fmt"
 	"net"
 )
 
-var port = ":3724"
-
-func main() {
-	//tcp server listening on port 3724
-	//client connects -> spin up a goroutine to handle session
-
+func Start(port string) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
-		fmt.Println("Error starting TCP server: ", err)
+		fmt.Printf("Error establishing listener %s", err)
 	}
 	defer listener.Close()
-	fmt.Println("Listening for TCP connections")
-
+	fmt.Println("Listening for TCP Connetcions")
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Println("error")
-			continue
+			fmt.Printf("Error accepting connection: %s", err)
 		}
 		go handleConnection(conn)
 	}
@@ -30,5 +23,5 @@ func main() {
 
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
-	fmt.Println("Connection received!")
+	fmt.Println("Connection received")
 }
