@@ -3,6 +3,7 @@ package network
 import (
 	"fmt"
 	"net"
+	"wow-server/internal/auth"
 )
 
 func Start(port string) {
@@ -24,4 +25,14 @@ func Start(port string) {
 func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Connection received")
+
+	buf := make([]byte, 1024)
+	n, err := conn.Read(buf)
+
+	if err != nil {
+		fmt.Printf("Error reading bytes from connection: %s", err)
+		return
+	}
+	fmt.Printf("Full byte string: %x\n", buf[:n])
+	auth.ParsePacket(buf[:n])
 }
