@@ -1,4 +1,4 @@
-package auth
+package protocol
 
 import (
 	"bytes"
@@ -59,5 +59,4 @@ func parseInfo(header wireCmdAuthLogonChallengeClientHeader, nameBytes []byte) C
 	fmt.Printf("Account Name: %s\n", parsed.accountName)
 
 	return parsed
-
 }

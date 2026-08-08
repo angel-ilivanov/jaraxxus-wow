@@ -1,7 +1,7 @@
 package main
 
-import "wow-server/internal/network"
+import "github.com/angel-ilivanov/wow-server/internal/authserver"
 
 func main() {
-	network.Start(":3724")
+	authserver.Start(":3724")
 }

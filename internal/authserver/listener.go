@@ -1,9 +1,10 @@
-package network
+package authserver
 
 import (
 	"fmt"
 	"net"
-	"wow-server/internal/auth"
+
+	"github.com/angel-ilivanov/wow-server/internal/authserver/protocol"
 )
 
 func Start(port string) {
@@ -12,7 +13,7 @@ func Start(port string) {
 		fmt.Printf("Error establishing listener %s", err)
 	}
 	defer listener.Close()
-	fmt.Println("Listening for TCP Connetcions")
+	fmt.Println("Listening for TCP Connections")
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -34,5 +35,5 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 	fmt.Printf("Full byte string: %x\n", buf[:n])
-	auth.ParsePacket(buf[:n])
+	protocol.ParsePacket(buf[:n])
 }
