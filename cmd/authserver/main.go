@@ -21,12 +21,6 @@ func main() {
 	}
 	defer pool.Close()
 
-	var version string
-	err = pool.QueryRow(ctx, "SELECT VERSION()").Scan(&version)
-	if err != nil {
-		log.Fatalf("verify database connection: %v", err)
-	}
-	log.Printf("DB Connection successful: %s", version)
-
-	authserver.Start(":3724")
+	server := authserver.New(pool)
+	server.Start(":3724")
 }
