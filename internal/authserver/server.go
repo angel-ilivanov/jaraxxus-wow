@@ -1,11 +1,11 @@
 package authserver
 
-import "github.com/jackc/pgx/v5/pgxpool"
+import "github.com/angel-ilivanov/wow-server/internal/accountstore"
 
 type Server struct {
-	db *pgxpool.Pool
+	accountStore *accountstore.Store
 }
 
-func New(db *pgxpool.Pool) *Server {
-	return &Server{db: db}
+func New(accountStore *accountstore.Store) *Server {
+	return &Server{accountStore: accountStore}
 }

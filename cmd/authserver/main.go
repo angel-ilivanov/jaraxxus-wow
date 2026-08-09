@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/angel-ilivanov/wow-server/internal/accountstore"
 	"github.com/angel-ilivanov/wow-server/internal/authserver"
 	"github.com/angel-ilivanov/wow-server/internal/database"
 )
@@ -21,6 +22,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	server := authserver.New(pool)
+	accountStore := accountstore.New(pool)
+	server := authserver.New(accountStore)
 	server.Start(":3724")
 }
