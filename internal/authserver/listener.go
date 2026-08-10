@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"net"
 )
 
@@ -31,7 +32,7 @@ func handleConnection(conn net.Conn) {
 		header := make([]byte, 4)
 		_, err := io.ReadFull(conn, header) // Keeps reading until array is full
 		if err != nil {
-			fmt.Errorf("error reading header %w", err)
+			log.Fatalf("error reading header %v", err)
 			return
 		}
 		fmt.Println(header)
@@ -39,7 +40,7 @@ func handleConnection(conn net.Conn) {
 		body := make([]byte, size)
 		_, err = io.ReadFull(conn, body)
 		if err != nil {
-			fmt.Errorf("error reading body %w", err)
+			log.Fatalf("error reading body %v", err)
 			return
 		}
 		fullPacket := append(header, body...)

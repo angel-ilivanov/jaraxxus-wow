@@ -1,14 +1,14 @@
 package authserver
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/angel-ilivanov/wow-server/internal/authserver/protocol"
 )
 
 func Parse(packet []byte) {
 	if len(packet) == 0 {
-		fmt.Errorf("Insufficient packet size")
+		log.Fatal("Insufficient packet size")
 	}
 	opcode := packet[0]
 
