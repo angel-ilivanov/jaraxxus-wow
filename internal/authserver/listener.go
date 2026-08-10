@@ -1,10 +1,10 @@
 package authserver
 
 import (
+	"encoding/binary"
 	"fmt"
+	"io"
 	"net"
-
-	"github.com/angel-ilivanov/wow-server/internal/authserver/protocol"
 )
 
 func Start(port string) {
@@ -27,13 +27,22 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Connection received")
 
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-
-	if err != nil {
-		fmt.Printf("Error reading bytes from connection: %s", err)
-		return
+	for {
+		header := make([]byte, 4)
+		_, err := io.ReadFull(conn, header) // Keeps reading until array is full
+		if err != nil {
+			fmt.Errorf("error reading header %w", err)
+			return
+		}
+		fmt.Println(header)
+		size := binary.LittleEndian.Uint16(header[2:4]) // length without header
+		body := make([]byte, size)
+		_, err = io.ReadFull(conn, body)
+		if err != nil {
+			fmt.Errorf("error reading body %w", err)
+			return
+		}
+		fullPacket := append(header, body...)
+		Parse(fullPacket)
 	}
-	fmt.Printf("Full byte string: %x\n", buf[:n])
-	protocol.ParsePacket(buf[:n])
 }
