@@ -6,9 +6,11 @@ import (
 	"io"
 	"log"
 	"net"
+
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver/protocol"
 )
 
-func Start(port string) {
+func (s *Server) Start(port string) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		fmt.Printf("Error establishing listener %s", err)
@@ -20,11 +22,11 @@ func Start(port string) {
 		if err != nil {
 			fmt.Printf("Error accepting connection: %s", err)
 		}
-		go handleConnection(conn)
+		go s.handleConnection(conn)
 	}
 }
 
-func handleConnection(conn net.Conn) {
+func (s *Server) handleConnection(conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Connection received")
 
