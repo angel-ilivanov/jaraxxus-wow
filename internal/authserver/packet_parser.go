@@ -3,7 +3,7 @@ package authserver
 import (
 	"log"
 
-	"github.com/angel-ilivanov/wow-server/internal/authserver/protocol"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver/protocol"
 )
 
 func Parse(packet []byte) {
