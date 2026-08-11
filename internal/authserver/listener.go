@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/angel-ilivanov/wow-server/internal/authserver/protocol"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver/protocol"
 )
 
 func (s *Server) Start(port string) {

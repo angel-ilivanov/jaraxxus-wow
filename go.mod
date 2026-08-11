@@ -1,4 +1,4 @@
-module github.com/angel-ilivanov/wow-server
+module github.com/angel-ilivanov/jaraxxus-wow
 
 go 1.26
 

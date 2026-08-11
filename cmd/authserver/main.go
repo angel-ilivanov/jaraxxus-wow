@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/angel-ilivanov/wow-server/internal/accountstore"
-	"github.com/angel-ilivanov/wow-server/internal/authserver"
-	"github.com/angel-ilivanov/wow-server/internal/database"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/database"
 )
 
 func main() {

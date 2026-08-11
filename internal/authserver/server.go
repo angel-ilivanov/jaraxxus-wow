@@ -1,6 +1,6 @@
 package authserver
 
-import "github.com/angel-ilivanov/wow-server/internal/accountstore"
+import "github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 
 type Server struct {
 	accountStore *accountstore.Store
