@@ -5,9 +5,12 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"net"
 )
 
-type wireCmdAuthLogonChallengeClientHeader struct {
+// Read and decode the challenge-specific layout
+
+type CmdAuthLogonChallengeClientParsed struct {
 	Opcode            uint8
 	ProtocolVersion   uint8
 	Size              uint16
@@ -21,42 +24,71 @@ type wireCmdAuthLogonChallengeClientHeader struct {
 	Ip                [4]uint8
 	AccountNameLength uint8
 }
-type CmdAuthLogonChallengeClient struct {
-	opcode      uint8
-	ip          uint32
-	accountName string
+
+type LogonChallengeClientRequest struct {
+	Ip          uint32
+	AccountName string
 }
 
-// 00082100576f57000303053430363878006e69570053556e6520feffffc0a8728203414755s
-func ParsePacket(data []byte) (wireCmdAuthLogonChallengeClientHeader, []byte) {
-	var h wireCmdAuthLogonChallengeClientHeader
-	reader := bytes.NewReader(data)
-
-	err := binary.Read(reader, binary.LittleEndian, &h)
-	if err != nil {
-		fmt.Printf("Error parsing binary: %s", err)
-	}
-
-	nameBytes := make([]byte, h.AccountNameLength)
-	_, err = io.ReadFull(reader, nameBytes)
-	if err != nil {
-		return h, nameBytes
-	}
-	parseInfo(h, nameBytes)
-	return h, nameBytes
+func (l LogonChallengeClientRequest) Opcode() uint8 {
+	return 0x00
 }
 
-func parseInfo(header wireCmdAuthLogonChallengeClientHeader, nameBytes []byte) CmdAuthLogonChallengeClient {
-	ip := binary.BigEndian.Uint32(header.Ip[:])
-	parsed := CmdAuthLogonChallengeClient{
-		opcode:      header.Opcode,
-		ip:          ip,
-		accountName: string(nameBytes),
+func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
+	packetBytes, err := assemblePacket(conn)
+	if err != nil {
+		return LogonChallengeClientRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
 	}
+	parsed, err := mapToStruct(packetBytes)
 
-	fmt.Printf("Opcode: %d\n", parsed.opcode)
-	fmt.Printf("IP: %d\n", parsed.ip)
-	fmt.Printf("Account Name: %s\n", parsed.accountName)
+	if err != nil {
+		return LogonChallengeClientRequest{}, fmt.Errorf("error mapping logon challenge Packet to struct %v", err)
+	}
+	return constructRequest(parsed, packetBytes), nil
+}
+func assemblePacket(conn net.Conn) ([]byte, error) {
+	header := make([]byte, 3)
+	_, err := io.ReadFull(conn, header)
+	if err != nil {
+		return nil, err
+	}
+	header = append([]byte{0x00}, header...) // prepend opcode
+	fmt.Println("header: ")
+	fmt.Println(header)
 
-	return parsed
+	size := binary.LittleEndian.Uint16(header[2:4])
+	body := make([]byte, size)
+	_, err = io.ReadFull(conn, body)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("body: ")
+	fmt.Println(body)
+	return append(header, body...), nil
+}
+
+func mapToStruct(packet []byte) (CmdAuthLogonChallengeClientParsed, error) {
+	var parsed CmdAuthLogonChallengeClientParsed
+	reader := bytes.NewReader(packet)
+	err := binary.Read(reader, binary.LittleEndian, &parsed)
+	if err != nil {
+		return CmdAuthLogonChallengeClientParsed{}, err
+	}
+	fmt.Println("Account name length: ")
+	fmt.Println(parsed.AccountNameLength)
+	return parsed, nil
+}
+
+func readName(parsed CmdAuthLogonChallengeClientParsed, packetBytes []byte) string {
+	nameLength := int(parsed.AccountNameLength)
+	nameBytes := packetBytes[len(packetBytes)-nameLength:]
+	fmt.Printf("Account name: %s", string(nameBytes))
+	return string(nameBytes)
+}
+
+func constructRequest(parsed CmdAuthLogonChallengeClientParsed, packetBytes []byte) LogonChallengeClientRequest {
+	return LogonChallengeClientRequest{
+		Ip:          binary.BigEndian.Uint32(parsed.Ip[:]),
+		AccountName: readName(parsed, packetBytes),
+	}
 }
