@@ -10,7 +10,7 @@ import (
 
 // Read and decode the challenge-specific layout
 
-type CmdAuthLogonChallengeClientParsed struct {
+type CmdAuthLogonChallengeClient struct {
 	Opcode            uint8
 	ProtocolVersion   uint8
 	Size              uint16
@@ -39,12 +39,12 @@ func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
 	if err != nil {
 		return LogonChallengeClientRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
 	}
-	parsed, err := mapToStruct(packetBytes)
+	parsedPacket, err := mapToStruct(packetBytes)
 
 	if err != nil {
 		return LogonChallengeClientRequest{}, fmt.Errorf("error mapping logon challenge Packet to struct %v", err)
 	}
-	return constructRequest(parsed, packetBytes), nil
+	return constructRequest(parsedPacket, packetBytes), nil
 }
 func assemblePacket(conn net.Conn) ([]byte, error) {
 	header := make([]byte, 3)
@@ -67,28 +67,28 @@ func assemblePacket(conn net.Conn) ([]byte, error) {
 	return append(header, body...), nil
 }
 
-func mapToStruct(packet []byte) (CmdAuthLogonChallengeClientParsed, error) {
-	var parsed CmdAuthLogonChallengeClientParsed
-	reader := bytes.NewReader(packet)
+func mapToStruct(packetBytes []byte) (CmdAuthLogonChallengeClient, error) {
+	var parsed CmdAuthLogonChallengeClient
+	reader := bytes.NewReader(packetBytes)
 	err := binary.Read(reader, binary.LittleEndian, &parsed)
 	if err != nil {
-		return CmdAuthLogonChallengeClientParsed{}, err
+		return CmdAuthLogonChallengeClient{}, err
 	}
 	fmt.Println("Account name length: ")
 	fmt.Println(parsed.AccountNameLength)
 	return parsed, nil
 }
 
-func readName(parsed CmdAuthLogonChallengeClientParsed, packetBytes []byte) string {
-	nameLength := int(parsed.AccountNameLength)
+func readName(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) string {
+	nameLength := int(parsedPacket.AccountNameLength)
 	nameBytes := packetBytes[len(packetBytes)-nameLength:]
 	fmt.Printf("Account name: %s", string(nameBytes))
 	return string(nameBytes)
 }
 
-func constructRequest(parsed CmdAuthLogonChallengeClientParsed, packetBytes []byte) LogonChallengeClientRequest {
+func constructRequest(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) LogonChallengeClientRequest {
 	return LogonChallengeClientRequest{
-		Ip:          binary.BigEndian.Uint32(parsed.Ip[:]),
-		AccountName: readName(parsed, packetBytes),
+		Ip:          binary.BigEndian.Uint32(parsedPacket.Ip[:]),
+		AccountName: readName(parsedPacket, packetBytes),
 	}
 }
