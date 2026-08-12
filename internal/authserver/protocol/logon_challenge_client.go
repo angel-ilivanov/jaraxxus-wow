@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"net"
 )
 
 // Read and decode the challenge-specific layout
@@ -34,7 +33,7 @@ func (l LogonChallengeClientRequest) Opcode() uint8 {
 	return 0x00
 }
 
-func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
+func ParseLogonChallengeClient(conn io.Reader) (ClientMessage, error) {
 	packetBytes, err := assemblePacket(conn)
 	if err != nil {
 		return LogonChallengeClientRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
@@ -46,7 +45,7 @@ func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
 	}
 	return constructRequest(parsedPacket, packetBytes), nil
 }
-func assemblePacket(conn net.Conn) ([]byte, error) {
+func assemblePacket(conn io.Reader) ([]byte, error) {
 	header := make([]byte, 3)
 	_, err := io.ReadFull(conn, header)
 	if err != nil {

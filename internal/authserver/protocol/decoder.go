@@ -3,12 +3,11 @@ package protocol
 import (
 	"fmt"
 	"io"
-	"net"
 )
 
 // Read opcode and choose appropriate Packet decoder
 
-func ReadClientMessage(conn net.Conn) (ClientMessage, error) {
+func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
 	opcode := make([]byte, 1)
 	_, err := io.ReadFull(conn, opcode)
 	if err != nil {
