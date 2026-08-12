@@ -29,6 +29,13 @@ func TestReadClientMessageEmptyPacket(t *testing.T) {
 	}
 }
 
+func TestReadClientMessageUnknownOpcode(t *testing.T) {
+	_, err := ReadClientMessage(bytes.NewReader([]byte{0xFF}))
+	if err == nil {
+		t.Fatalf("Decoder accepts unknown opcode, expected to fail")
+	}
+}
+
 func TestDecodeUsername(t *testing.T) {
 	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
 	if err != nil {
