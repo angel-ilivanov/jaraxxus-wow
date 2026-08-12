@@ -29,25 +29,17 @@ func TestReadClientMessageEmptyPacket(t *testing.T) {
 	}
 }
 
-func TestReadClientMessageReturnsLogonChallengeRequest(t *testing.T) {
-	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
-	if err != nil {
-		t.Fatalf("ReadClientMessage() error = %v", err)
-	}
-	_, ok := result.(LogonChallengeClientRequest)
-	if !ok {
-		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
-	}
-}
-
 func TestDecodeUsername(t *testing.T) {
 	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	name := result.(LogonChallengeClientRequest).AccountName
-	if name != "JARAXXUS" {
-		t.Fatalf("Expected JARAXXUS but got %s", name)
+	request, ok := result.(LogonChallengeClientRequest)
+	if !ok {
+		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
+	}
+	if request.AccountName != "JARAXXUS" {
+		t.Fatalf("Expected JARAXXUS but got %s", request.AccountName)
 	}
 }
 
@@ -56,10 +48,13 @@ func TestDecodeIp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	ip := result.(LogonChallengeClientRequest).Ip
+	request, ok := result.(LogonChallengeClientRequest)
+	if !ok {
+		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
+	}
 	ipBytes := make([]byte, 4)
-	binary.BigEndian.PutUint32(ipBytes, ip)
-	if ip != 2130706433 {
+	binary.BigEndian.PutUint32(ipBytes, request.Ip)
+	if request.Ip != 2130706433 {
 		t.Fatalf("Expected Ip [127 0 0 1] but got %v", ipBytes)
 	}
 }
