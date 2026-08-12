@@ -13,8 +13,7 @@ func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading opcode %v", err)
 	}
-	fmt.Println("opcode: ")
-	fmt.Println(opcode)
+	fmt.Println("opcode:", opcode)
 	switch opcode[0] {
 	case 0x00:
 		return ParseLogonChallengeClient(conn)
