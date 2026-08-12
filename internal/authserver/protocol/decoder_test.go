@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"bytes"
+	"encoding/binary"
 	"testing"
 )
 
@@ -49,7 +50,9 @@ func TestDecodeIp(t *testing.T) {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
 	ip := result.(LogonChallengeClientRequest).Ip
+	ipBytes := make([]byte, 4)
+	binary.BigEndian.PutUint32(ipBytes, ip)
 	if ip != 2130706433 {
-		t.Fatalf("Expected Ip 2130706433 but got %d", ip)
+		t.Fatalf("Expected Ip [127 0 0 1] but got %v", ipBytes)
 	}
 }
