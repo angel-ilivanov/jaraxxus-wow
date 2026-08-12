@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"net"
 )
 
 // Read and decode the challenge-specific layout
@@ -34,7 +33,7 @@ func (l LogonChallengeClientRequest) Opcode() uint8 {
 	return 0x00
 }
 
-func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
+func ParseLogonChallengeClient(conn io.Reader) (ClientMessage, error) {
 	packetBytes, err := assemblePacket(conn)
 	if err != nil {
 		return LogonChallengeClientRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
@@ -46,24 +45,21 @@ func ParseLogonChallengeClient(conn net.Conn) (ClientMessage, error) {
 	}
 	return constructRequest(parsedPacket, packetBytes), nil
 }
-func assemblePacket(conn net.Conn) ([]byte, error) {
+func assemblePacket(conn io.Reader) ([]byte, error) {
 	header := make([]byte, 3)
 	_, err := io.ReadFull(conn, header)
 	if err != nil {
 		return nil, err
 	}
 	header = append([]byte{0x00}, header...) // prepend opcode
-	fmt.Println("header: ")
-	fmt.Println(header)
-
+	fmt.Println("header:", header)
 	size := binary.LittleEndian.Uint16(header[2:4])
 	body := make([]byte, size)
 	_, err = io.ReadFull(conn, body)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("body: ")
-	fmt.Println(body)
+	fmt.Println("body:", body)
 	return append(header, body...), nil
 }
 
@@ -74,15 +70,14 @@ func mapToStruct(packetBytes []byte) (CmdAuthLogonChallengeClient, error) {
 	if err != nil {
 		return CmdAuthLogonChallengeClient{}, err
 	}
-	fmt.Println("Account name length: ")
-	fmt.Println(parsed.AccountNameLength)
+	fmt.Println("Account name length:", parsed.AccountNameLength)
 	return parsed, nil
 }
 
 func readName(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) string {
 	nameLength := int(parsedPacket.AccountNameLength)
 	nameBytes := packetBytes[len(packetBytes)-nameLength:]
-	fmt.Printf("Account name: %s", string(nameBytes))
+	fmt.Println("Account name:", string(nameBytes))
 	return string(nameBytes)
 }
 
