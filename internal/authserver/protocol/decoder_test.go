@@ -22,7 +22,10 @@ var logonChallengeClientPacket = []byte{
 }
 
 func TestReadClientMessageReturnsLogonChallengeRequest(t *testing.T) {
-	result, _ := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	if err != nil {
+		t.Fatalf("ReadClientMessage() error = %v", err)
+	}
 	_, ok := result.(LogonChallengeClientRequest)
 	if !ok {
 		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
@@ -30,7 +33,10 @@ func TestReadClientMessageReturnsLogonChallengeRequest(t *testing.T) {
 }
 
 func TestDecodeUsername(t *testing.T) {
-	result, _ := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	if err != nil {
+		t.Fatalf("ReadClientMessage() error = %v", err)
+	}
 	name := result.(LogonChallengeClientRequest).AccountName
 	if name != "JARAXXUS" {
 		t.Fatalf("Expected JARAXXUS but got %s", name)
@@ -38,7 +44,10 @@ func TestDecodeUsername(t *testing.T) {
 }
 
 func TestDecodeIp(t *testing.T) {
-	result, _ := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	if err != nil {
+		t.Fatalf("ReadClientMessage() error = %v", err)
+	}
 	ip := result.(LogonChallengeClientRequest).Ip
 	if ip != 2130706433 {
 		t.Fatalf("Expected Ip 2130706433 but got %d", ip)
