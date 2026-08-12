@@ -21,7 +21,7 @@ var logonChallengeClientPacket = []byte{
 	'J', 'A', 'R', 'A', 'X', 'X', 'U', 'S', // account name
 }
 
-func TestReadClientMessageReturnsCorrectMessageType(t *testing.T) {
+func TestReadClientMessageReturnsLogonChallengeRequest(t *testing.T) {
 	result, _ := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
 	_, ok := result.(LogonChallengeClientRequest)
 	if !ok {
