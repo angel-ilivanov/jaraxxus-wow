@@ -81,7 +81,7 @@ func mapToStruct(packetBytes []byte) (CmdAuthLogonChallengeClient, error) {
 func readName(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) string {
 	nameLength := int(parsedPacket.AccountNameLength)
 	nameBytes := packetBytes[len(packetBytes)-nameLength:]
-	fmt.Printf("Account name: %s", string(nameBytes))
+	fmt.Printf("Account name: %s\n", string(nameBytes))
 	return string(nameBytes)
 }
 
