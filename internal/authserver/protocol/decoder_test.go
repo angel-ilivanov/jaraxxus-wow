@@ -22,6 +22,13 @@ var logonChallengeClientPacket = []byte{
 	'J', 'A', 'R', 'A', 'X', 'X', 'U', 'S', // account name
 }
 
+func TestReadClientMessageEmptyPacket(t *testing.T) {
+	_, err := ReadClientMessage(bytes.NewReader(make([]byte, 0)))
+	if err == nil {
+		t.Fatalf("Decoder accepts empty packet, expected to fail")
+	}
+}
+
 func TestReadClientMessageReturnsLogonChallengeRequest(t *testing.T) {
 	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
 	if err != nil {
