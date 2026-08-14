@@ -19,14 +19,14 @@ var largeSafePrimeLittleEndian = []byte{
 var largeSafePrime = bytesToBigInt(largeSafePrimeLittleEndian)
 var generatorBigInt = big.NewInt(generator)
 
-func generateSalt() []byte {
+func GenerateSalt() []byte {
 	salt := make([]byte, saltSize)
 	_, _ = rand.Read(salt) // never returns an error
 	return salt
 }
 
 // returns little endian password verifier
-func calculatePasswordVerifier(username string, password string, salt []byte) []byte {
+func CalculatePasswordVerifier(username string, password string, salt []byte) []byte {
 	x := bytesToBigInt(calculateX(username, password, salt))
 	return bigIntToBytes(saltSize, big.NewInt(0).Exp(generatorBigInt, x, largeSafePrime))
 }
