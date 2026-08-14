@@ -1,4 +1,4 @@
-package authserver
+package account
 
 import (
 	"context"
@@ -12,16 +12,16 @@ import (
 
 func TestRegisterAccount_Success(t *testing.T) {
 	ctx := context.Background()
-	server := setup(ctx, t)
+	service := setup(ctx, t)
 
 	username := "acc_" + rand.Text()[0:6]
 	password := "MVRVMUJFWRA0IBVK"
 
-	id, err := server.RegisterAccount(ctx, username, password)
+	id, err := service.CreateAccount(ctx, username, password)
 	if err != nil {
 		t.Fatalf("error registering account: %v", err)
 	}
-	auth, err := server.accountStore.FindForAuthentication(ctx, username)
+	auth, err := service.accountStore.FindForAuthentication(ctx, username)
 	if err != nil {
 		t.Fatalf("error querying database: %v", err)
 	}
@@ -31,22 +31,22 @@ func TestRegisterAccount_Success(t *testing.T) {
 }
 func TestRegisterAccount_UsernameTaken(t *testing.T) {
 	ctx := context.Background()
-	server := setup(ctx, t)
+	service := setup(ctx, t)
 
 	username := "acc_" + rand.Text()[0:6]
 	password := "MVRVMUJFWRA0IBVK"
 
-	_, err := server.RegisterAccount(ctx, username, password)
+	_, err := service.CreateAccount(ctx, username, password)
 	if err != nil {
 		t.Fatalf("error registering account: %v", err)
 	}
-	_, err = server.RegisterAccount(ctx, username, password)
+	_, err = service.CreateAccount(ctx, username, password)
 	if err == nil {
 		t.Fatalf("expected an error when registering with a taken username")
 	}
 }
 
-func setup(ctx context.Context, t *testing.T) *Server {
+func setup(ctx context.Context, t *testing.T) *Service {
 	connectionString := os.Getenv("TEST_DATABASE_URL")
 	if connectionString == "" {
 		t.Fatal("TEST_DATABASE_URL is not set")
@@ -58,5 +58,5 @@ func setup(ctx context.Context, t *testing.T) *Server {
 	t.Cleanup(pool.Close)
 
 	store := accountstore.New(pool)
-	return &Server{accountStore: store}
+	return New(store)
 }
