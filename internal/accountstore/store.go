@@ -56,7 +56,7 @@ func (s *Store) Insert(
 		 ON CONFLICT ON CONSTRAINT account_username_unique DO NOTHING
 		 RETURNING id`,
 		pgx.StrictNamedArgs{
-			"username": username,
+			"username": strings.ToUpper(username),
 			"salt":     credentials.Salt,
 			"verifier": credentials.Verifier,
 		},
