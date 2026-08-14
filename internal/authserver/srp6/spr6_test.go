@@ -20,7 +20,7 @@ func TestCalculatePasswordVerifier(t *testing.T) {
 		0x79, 0x3F, 0xCC, 0x90, 0x26, 0x8F, 0xD2, 0x69,
 		0x0A, 0x8D, 0x93, 0x0A, 0x3B, 0x15, 0xB4, 0x21,
 	}
-	verifier := calculatePasswordVerifier(username, password, salt)
+	verifier := CalculatePasswordVerifier(username, password, salt)
 	if bytes.Compare(expected, verifier) != 0 {
 		t.Fatalf("Verifier calculated incorrectly, expected %v but was %v", expected, verifier)
 	}
