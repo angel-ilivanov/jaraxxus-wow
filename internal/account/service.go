@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/srp6"
@@ -18,7 +19,7 @@ func (s *Service) CreateAccount(ctx context.Context, username string, password s
 		Salt:     salt,
 		Verifier: srp6.CalculatePasswordVerifier(username, password, salt),
 	}
-	id, err := s.accountStore.Insert(ctx, username, creds)
+	id, err := s.accountStore.Insert(ctx, strings.ToUpper(username), creds)
 	if err != nil {
 		return 0, fmt.Errorf("create account: %w", err)
 	}
