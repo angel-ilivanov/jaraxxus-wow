@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -81,7 +82,7 @@ func (s *Store) FindForAuthentication(
 		`SELECT id, salt, verifier
 		 FROM public.account
 		 WHERE username = @username`,
-		pgx.StrictNamedArgs{"username": username},
+		pgx.StrictNamedArgs{"username": strings.ToUpper(username)},
 	).Scan(
 		&authentication.ID,
 		&authentication.Salt,
