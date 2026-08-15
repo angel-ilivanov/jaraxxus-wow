@@ -18,8 +18,8 @@ func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
 	case 0x00:
 		return ParseLogonChallengeClient(conn)
 	case 0x01:
-		fmt.Println("Received proof packet from client")
-		return nil, nil
+		fmt.Println("Received proof packet from client, handling not implemented")
+		return nil, fmt.Errorf("logon proof handling not implemented")
 	default:
 		return nil, fmt.Errorf("unknown opcode")
 	}
