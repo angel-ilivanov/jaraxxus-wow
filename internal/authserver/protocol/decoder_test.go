@@ -23,25 +23,25 @@ var logonChallengeClientPacket = []byte{
 }
 
 func TestReadClientMessageEmptyPacket(t *testing.T) {
-	_, err := ReadClientMessage(bytes.NewReader(make([]byte, 0)))
+	_, err := DecodeRequest(bytes.NewReader(make([]byte, 0)))
 	if err == nil {
 		t.Fatalf("Decoder accepts empty packet, expected to fail")
 	}
 }
 
 func TestReadClientMessageUnknownOpcode(t *testing.T) {
-	_, err := ReadClientMessage(bytes.NewReader([]byte{0xFF}))
+	_, err := DecodeRequest(bytes.NewReader([]byte{0xFF}))
 	if err == nil {
 		t.Fatalf("Decoder accepts unknown opcode, expected to fail")
 	}
 }
 
 func TestDecodeUsername(t *testing.T) {
-	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	result, err := DecodeRequest(bytes.NewReader(logonChallengeClientPacket))
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	request, ok := result.(LogonChallengeClientMessage)
+	request, ok := result.(LogonChallengeRequest)
 	if !ok {
 		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
 	}
@@ -51,11 +51,11 @@ func TestDecodeUsername(t *testing.T) {
 }
 
 func TestDecodeIp(t *testing.T) {
-	result, err := ReadClientMessage(bytes.NewReader(logonChallengeClientPacket))
+	result, err := DecodeRequest(bytes.NewReader(logonChallengeClientPacket))
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	request, ok := result.(LogonChallengeClientMessage)
+	request, ok := result.(LogonChallengeRequest)
 	if !ok {
 		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
 	}

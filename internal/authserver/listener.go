@@ -32,13 +32,14 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	session := &AuthSession{}
 
 	for {
-		message, err := protocol.ReadClientMessage(conn)
+		message, err := protocol.DecodeRequest(conn)
 		if err != nil {
 			return
 		}
 		packet, err := s.messageHandler.HandleMessage(ctx, session, message)
 		if err != nil {
 			fmt.Println(err)
+			return
 		}
 		fmt.Println("packet length:", len(packet))
 		bytesWritten, err := conn.Write(packet)

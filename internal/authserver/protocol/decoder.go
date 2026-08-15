@@ -7,7 +7,7 @@ import (
 
 // Read opcode and choose appropriate Packet decoder
 
-func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
+func DecodeRequest(conn io.Reader) (ClientMessage, error) {
 	opcode := make([]byte, 1)
 	_, err := io.ReadFull(conn, opcode)
 	if err != nil {
@@ -16,7 +16,7 @@ func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
 	fmt.Println("opcode:", opcode)
 	switch opcode[0] {
 	case 0x00:
-		return ParseLogonChallengeClient(conn)
+		return DecodeLogonChallengeRequest(conn)
 	case 0x01:
 		fmt.Println("Received proof packet from client, handling not implemented")
 		return nil, fmt.Errorf("logon proof handling not implemented")

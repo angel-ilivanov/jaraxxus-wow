@@ -15,13 +15,13 @@ type MessageHandler struct {
 // HandleMessage dispatches to the appropriate handler
 func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) ([]byte, error) {
 	switch message := message.(type) {
-	case protocol.LogonChallengeClientMessage:
-		return handler.handleLogonChallengeMessage(ctx, session, message)
+	case protocol.LogonChallengeRequest:
+		return handler.handleLogonChallenge(ctx, session, message)
 	default:
 		return nil, fmt.Errorf("unknown opcode")
 	}
 }
 
-func NewHandler(store *accountstore.Store) *MessageHandler {
+func NewMessageHandler(store *accountstore.Store) *MessageHandler {
 	return &MessageHandler{store: store}
 }

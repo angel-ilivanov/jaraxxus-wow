@@ -7,5 +7,5 @@ type Server struct {
 }
 
 func New(accountStore *accountstore.Store) *Server {
-	return &Server{messageHandler: NewHandler(accountStore)}
+	return &Server{messageHandler: NewMessageHandler(accountStore)}
 }

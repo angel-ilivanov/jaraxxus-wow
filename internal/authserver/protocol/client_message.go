@@ -1,5 +1,5 @@
 package protocol
 
 type ClientMessage interface {
-	Opcode() uint8
+	Opcode() Opcode
 }
