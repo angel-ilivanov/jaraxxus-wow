@@ -17,6 +17,9 @@ func ReadClientMessage(conn io.Reader) (ClientMessage, error) {
 	switch opcode[0] {
 	case 0x00:
 		return ParseLogonChallengeClient(conn)
+	case 0x01:
+		fmt.Println("Received proof packet from client")
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("unknown opcode")
 	}

@@ -13,14 +13,13 @@ type MessageHandler struct {
 }
 
 // HandleMessage dispatches to the appropriate handler
-func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) error {
+func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) ([]byte, error) {
 	switch message.Opcode() {
 	case 0x00:
-		handler.handleLogonChallengeMessage(ctx, session, message.(protocol.LogonChallengeClientMessage))
+		return handler.handleLogonChallengeMessage(ctx, session, message.(protocol.LogonChallengeClientMessage))
 	default:
-		return fmt.Errorf("unknown opcode")
+		return nil, fmt.Errorf("unknown opcode")
 	}
-	return nil
 }
 
 func NewHandler(store *accountstore.Store) *MessageHandler {
