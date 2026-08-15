@@ -23,7 +23,7 @@ func EncodeLogonChallengeResponse(response LogonChallengeResponse) []byte {
 	buf.WriteByte(0x00)
 	buf.WriteByte(byte(response.Result))
 
-	if response.Result != Success {
+	if response.Result != ResultSuccess {
 		fmt.Println("Server Packet:", buf.Bytes())
 		return buf.Bytes()
 	}

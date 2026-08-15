@@ -15,7 +15,7 @@ func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session
 	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {
-			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.FailUnknownAccount}), nil
+			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.ResultUnknownAccount}), nil
 		}
 		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}
@@ -45,7 +45,7 @@ func generateSRPState(creds accountstore.Authentication) *srpState {
 }
 func constructResponse(serverPublicKey []byte, salt []byte) protocol.LogonChallengeResponse {
 	return protocol.LogonChallengeResponse{
-		Result:          0x00,
+		Result:          protocol.ResultSuccess,
 		ServerPublicKey: serverPublicKey,
 		Salt:            salt,
 	}
