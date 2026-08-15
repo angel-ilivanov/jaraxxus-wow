@@ -8,10 +8,12 @@ import (
 )
 
 const (
-	generator     = 7
-	saltSize      = 32
-	serverKeySize = 32
-	k             = 3
+	Generator            = 7
+	GeneratorLength      = 1
+	LargeSafePrimeLength = 1
+	saltLength           = 32
+	serverKeyLength      = 32
+	k                    = 3
 )
 
 var (
@@ -22,12 +24,12 @@ var (
 		0x5b, 0x53, 0xe1, 0x89, 0x5e, 0x64, 0x4b, 0x89,
 	}
 	largeSafePrime  = bytesToBigInt(largeSafePrimeLittleEndian)
-	generatorBigInt = big.NewInt(generator)
+	generatorBigInt = big.NewInt(Generator)
 	kBigInt         = big.NewInt(k)
 )
 
 func GenerateSalt() []byte {
-	salt := make([]byte, saltSize)
+	salt := make([]byte, saltLength)
 	_, _ = rand.Read(salt) // never returns an error
 	return salt
 }
@@ -35,7 +37,7 @@ func GenerateSalt() []byte {
 // CalculatePasswordVerifier returns little endian password verifier
 func CalculatePasswordVerifier(username string, password string, salt []byte) []byte {
 	x := bytesToBigInt(calculateX(username, password, salt))
-	return bigIntToBytes(saltSize, big.NewInt(0).Exp(generatorBigInt, x, largeSafePrime))
+	return bigIntToBytes(saltLength, big.NewInt(0).Exp(generatorBigInt, x, largeSafePrime))
 }
 
 // x = SHA1( s | SHA1( U | : | p )),
@@ -54,12 +56,12 @@ func CalculateServerPublicKey(verifier []byte, serverPrivateKey []byte) []byte {
 	interim := new(big.Int)
 	interim.Mul(kBigInt, verifierBigInt)
 	interim.Add(interim, big.NewInt(0).Exp(generatorBigInt, serverPrivateKeyBigInt, largeSafePrime))
-	return bigIntToBytes(serverKeySize, interim.Mod(interim, largeSafePrime))
+	return bigIntToBytes(serverKeyLength, interim.Mod(interim, largeSafePrime))
 }
 
 // GenerateServerPrivateKey returns a random 32 byte key
 func GenerateServerPrivateKey() []byte {
-	key := make([]byte, serverKeySize)
+	key := make([]byte, serverKeyLength)
 	_, _ = rand.Read(key)
 	return key
 }
