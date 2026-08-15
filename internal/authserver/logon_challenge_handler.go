@@ -15,7 +15,7 @@ func (handler *MessageHandler) handleLogonChallenge(ctx context.Context, session
 	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {
-			return protocol.AssembleFailServerChallengePacket(protocol.FAIL_UNKNOWN_ACCOUNT), nil
+			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.FAIL_UNKNOWN_ACCOUNT}), nil
 		}
 		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}
@@ -29,7 +29,7 @@ func (handler *MessageHandler) handleLogonChallenge(ctx context.Context, session
 		return nil, fmt.Errorf("update authentication session: %w", err)
 	}
 	response := constructResponse(session.srpState.serverPublicKey, creds.Salt)
-	packet := protocol.AssembleSuccessServerChallengePacket(response)
+	packet := protocol.EncodeLogonChallengeResponse(response)
 	return packet, nil
 }
 
