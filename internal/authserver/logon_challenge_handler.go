@@ -2,6 +2,7 @@ package authserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
@@ -13,7 +14,11 @@ import (
 func (handler *MessageHandler) handleLogonChallengeMessage(ctx context.Context, session *AuthSession, message protocol.LogonChallengeClientMessage) ([]byte, error) {
 	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching data for username %s: %w", message.AccountName, err)
+		if errors.Is(err, accountstore.ErrNotFound) {
+			// 0x04 = FAIL_UNKNOWN_ACCOUNT
+			return protocol.AssembleFailServerChallengePacket(0x04), nil
+		}
+		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}
 	identity := accountIdentity{
 		accountID: creds.ID,
@@ -22,10 +27,10 @@ func (handler *MessageHandler) handleLogonChallengeMessage(ctx context.Context, 
 	state := generateSRPState(creds)
 	err = updateSession(session, state, identity)
 	if err != nil {
-		return nil, fmt.Errorf("error updating session: %w", err)
+		return nil, fmt.Errorf("update authentication session: %w", err)
 	}
 	response := constructMessage(session.temporarySrpState.serverPublicKey, creds.Salt)
-	packet := protocol.AssembleServerChallengePacket(response)
+	packet := protocol.AssembleSuccessServerChallengePacket(response)
 	return packet, nil
 }
 
@@ -41,7 +46,7 @@ func generateSRPState(creds accountstore.Authentication) *srpState {
 }
 func constructMessage(serverPublicKey []byte, salt []byte) protocol.LogonChallengeServerMessage {
 	return protocol.LogonChallengeServerMessage{
-		Success:         true,
+		Result:          0x00,
 		ServerPublicKey: serverPublicKey,
 		Salt:            salt,
 	}

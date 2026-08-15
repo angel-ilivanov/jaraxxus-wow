@@ -42,7 +42,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		}
 		fmt.Println("packet length:", len(packet))
 		bytesWritten, err := conn.Write(packet)
-		fmt.Println("bytes written must be 119:", bytesWritten)
+		fmt.Println("bytes written:", bytesWritten)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -8,14 +8,14 @@ import (
 )
 
 type LogonChallengeServerMessage struct {
-	Success         bool
+	Result          uint8
 	ServerPublicKey []byte
 	Salt            []byte
 }
 
 var crcSalt = make([]byte, 16)
 
-func AssembleServerChallengePacket(message LogonChallengeServerMessage) []byte {
+func AssembleSuccessServerChallengePacket(message LogonChallengeServerMessage) []byte {
 	var buf bytes.Buffer
 	// Opcode: CMD_AUTH_LOGON_CHALLENGE
 	buf.WriteByte(0x00)
@@ -34,5 +34,15 @@ func AssembleServerChallengePacket(message LogonChallengeServerMessage) []byte {
 	// Additional Verification required (PIN, 2FA)
 	buf.WriteByte(0x00)
 	fmt.Println("Server Packet:", buf.Bytes())
+	return buf.Bytes()
+}
+
+func AssembleFailServerChallengePacket(result uint8) []byte {
+	var buf bytes.Buffer
+	// Opcode: CMD_AUTH_LOGON_CHALLENGE
+	buf.WriteByte(0x00)
+	// Protocol Version: 0
+	buf.WriteByte(0x00)
+	buf.WriteByte(result)
 	return buf.Bytes()
 }
