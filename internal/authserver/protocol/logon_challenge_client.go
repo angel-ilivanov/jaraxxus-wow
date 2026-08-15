@@ -29,9 +29,7 @@ type LogonChallengeRequest struct {
 	AccountName string
 }
 
-func (l LogonChallengeRequest) Opcode() Opcode {
-	return CmdAuthLogonChallenge
-}
+func (l LogonChallengeRequest) isRequest() {}
 
 func DecodeLogonChallengeRequest(reader io.Reader) (Request, error) {
 	packetBytes, err := readLogonChallengePacket(reader)
