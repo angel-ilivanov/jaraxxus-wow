@@ -15,7 +15,7 @@ func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session
 	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {
-			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.FAIL_UNKNOWN_ACCOUNT}), nil
+			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.FailUnknownAccount}), nil
 		}
 		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}

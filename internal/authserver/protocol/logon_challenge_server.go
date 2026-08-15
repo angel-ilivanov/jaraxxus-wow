@@ -8,7 +8,7 @@ import (
 )
 
 type LogonChallengeResponse struct {
-	Result          LoginPacketResult
+	Result          LoginResult
 	ServerPublicKey []byte
 	Salt            []byte
 }
@@ -18,12 +18,12 @@ var crcSalt = make([]byte, 16)
 func EncodeLogonChallengeResponse(response LogonChallengeResponse) []byte {
 	var buf bytes.Buffer
 	// Opcode
-	buf.WriteByte(byte(CMD_AUTH_LOGON_CHALLENGE))
+	buf.WriteByte(byte(CmdAuthLogonChallenge))
 	// Protocol Version: 0
 	buf.WriteByte(0x00)
 	buf.WriteByte(byte(response.Result))
 
-	if response.Result != SUCCESS {
+	if response.Result != Success {
 		fmt.Println("Server Packet:", buf.Bytes())
 		return buf.Bytes()
 	}

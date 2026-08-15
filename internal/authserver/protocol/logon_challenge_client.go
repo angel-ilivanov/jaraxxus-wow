@@ -30,7 +30,7 @@ type LogonChallengeRequest struct {
 }
 
 func (l LogonChallengeRequest) Opcode() Opcode {
-	return CMD_AUTH_LOGON_CHALLENGE
+	return CmdAuthLogonChallenge
 }
 
 func DecodeLogonChallengeRequest(conn io.Reader) (Request, error) {
