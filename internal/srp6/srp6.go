@@ -10,7 +10,7 @@ import (
 const (
 	Generator            = 7
 	GeneratorLength      = 1
-	LargeSafePrimeLength = 1
+	LargeSafePrimeLength = 32
 	saltLength           = 32
 	serverKeyLength      = 32
 	k                    = 3
