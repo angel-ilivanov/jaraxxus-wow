@@ -36,7 +36,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		if err != nil {
 			return
 		}
-		packet, err := s.requestHandler.HandleMessage(ctx, session, request)
+		packet, err := s.requestHandler.HandleRequest(ctx, session, request)
 		if err != nil {
 			fmt.Println(err)
 			return

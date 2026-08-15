@@ -12,8 +12,8 @@ type RequestHandler struct {
 	store *accountstore.Store
 }
 
-// HandleMessage dispatches to the appropriate handler
-func (handler *RequestHandler) HandleMessage(ctx context.Context, session *AuthSession, request protocol.Request) ([]byte, error) {
+// HandleRequest dispatches to the appropriate handler
+func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthSession, request protocol.Request) ([]byte, error) {
 	switch message := request.(type) {
 	case protocol.LogonChallengeRequest:
 		return handler.handleLogonChallenge(ctx, session, message)
