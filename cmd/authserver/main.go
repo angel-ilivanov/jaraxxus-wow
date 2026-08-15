@@ -24,5 +24,5 @@ func main() {
 
 	accountStore := accountstore.New(pool)
 	server := authserver.New(accountStore)
-	server.Start(":3724")
+	server.Start(ctx, ":3724")
 }

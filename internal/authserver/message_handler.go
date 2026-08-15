@@ -1,6 +1,7 @@
 package authserver
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
@@ -11,10 +12,11 @@ type MessageHandler struct {
 	store *accountstore.Store
 }
 
-func (handler *MessageHandler) HandleMessage(session *AuthSession, message protocol.ClientMessage) error {
+// HandleMessage dispatches to the appropriate handler
+func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) error {
 	switch message.Opcode() {
 	case 0x00:
-
+		handler.handleLogonChallengeMessage(ctx, session, message.(protocol.LogonChallengeClientMessage))
 	default:
 		return fmt.Errorf("unknown opcode")
 	}
