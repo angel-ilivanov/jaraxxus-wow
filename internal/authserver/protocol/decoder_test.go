@@ -22,14 +22,14 @@ var logonChallengeClientPacket = []byte{
 	'J', 'A', 'R', 'A', 'X', 'X', 'U', 'S', // account name
 }
 
-func TestReadClientMessageEmptyPacket(t *testing.T) {
+func TestDecodeRequestEmptyPacket(t *testing.T) {
 	_, err := DecodeRequest(bytes.NewReader(make([]byte, 0)))
 	if err == nil {
 		t.Fatalf("Decoder accepts empty packet, expected to fail")
 	}
 }
 
-func TestReadClientMessageUnknownOpcode(t *testing.T) {
+func TestDecodeRequestUnknownOpcode(t *testing.T) {
 	_, err := DecodeRequest(bytes.NewReader([]byte{0xFF}))
 	if err == nil {
 		t.Fatalf("Decoder accepts unknown opcode, expected to fail")
