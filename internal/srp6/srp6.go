@@ -48,7 +48,7 @@ func calculateX(username string, password string, salt []byte) []byte {
 	return combinedHash[:]
 }
 
-// CalculateServerPublicKey returns the key in as a 32 byte little endian array
+// CalculateServerPublicKey returns the key as a 32 byte little endian array
 func CalculateServerPublicKey(verifier []byte, serverPrivateKey []byte) []byte {
 	verifierBigInt := bytesToBigInt(verifier)
 	serverPrivateKeyBigInt := bytesToBigInt(serverPrivateKey)
