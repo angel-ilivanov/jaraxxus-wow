@@ -4,7 +4,7 @@ import "fmt"
 
 type AuthSession struct {
 	phase             authPhase
-	identity          *accountIdentity
+	identity          accountIdentity
 	temporarySrpState *srpState
 	sessionKey        []byte
 }
@@ -27,7 +27,7 @@ type srpState struct {
 	serverPublicKey  []byte
 }
 
-func (s *AuthSession) beginProof(identity *accountIdentity, state *srpState) error {
+func (s *AuthSession) beginProof(identity accountIdentity, state *srpState) error {
 	if s.phase != PhaseAwaitingChallenge {
 		return fmt.Errorf("session proof has already started")
 	}
