@@ -7,17 +7,24 @@ import (
 	"strings"
 )
 
-const generator = 7
-const saltSize = 32
+const (
+	generator     = 7
+	saltSize      = 32
+	serverKeySize = 32
+	k             = 3
+)
 
-var largeSafePrimeLittleEndian = []byte{
-	0xb7, 0x9b, 0x3e, 0x2a, 0x87, 0x82, 0x3c, 0xab,
-	0x8f, 0x5e, 0xbf, 0xbf, 0x8e, 0xb1, 0x01, 0x08,
-	0x53, 0x50, 0x06, 0x29, 0x8b, 0x5b, 0xad, 0xbd,
-	0x5b, 0x53, 0xe1, 0x89, 0x5e, 0x64, 0x4b, 0x89,
-}
-var largeSafePrime = bytesToBigInt(largeSafePrimeLittleEndian)
-var generatorBigInt = big.NewInt(generator)
+var (
+	largeSafePrimeLittleEndian = []byte{
+		0xb7, 0x9b, 0x3e, 0x2a, 0x87, 0x82, 0x3c, 0xab,
+		0x8f, 0x5e, 0xbf, 0xbf, 0x8e, 0xb1, 0x01, 0x08,
+		0x53, 0x50, 0x06, 0x29, 0x8b, 0x5b, 0xad, 0xbd,
+		0x5b, 0x53, 0xe1, 0x89, 0x5e, 0x64, 0x4b, 0x89,
+	}
+	largeSafePrime  = bytesToBigInt(largeSafePrimeLittleEndian)
+	generatorBigInt = big.NewInt(generator)
+	kBigInt         = big.NewInt(k)
+)
 
 func GenerateSalt() []byte {
 	salt := make([]byte, saltSize)
@@ -25,7 +32,7 @@ func GenerateSalt() []byte {
 	return salt
 }
 
-// returns little endian password verifier
+// CalculatePasswordVerifier returns little endian password verifier
 func CalculatePasswordVerifier(username string, password string, salt []byte) []byte {
 	x := bytesToBigInt(calculateX(username, password, salt))
 	return bigIntToBytes(saltSize, big.NewInt(0).Exp(generatorBigInt, x, largeSafePrime))
@@ -37,6 +44,24 @@ func calculateX(username string, password string, salt []byte) []byte {
 	concatenated := append(salt[:], credsHash[:]...)
 	combinedHash := sha1.Sum(concatenated)
 	return combinedHash[:]
+}
+
+// CalculateServerPublicKey returns the key in as a 32 byte little endian array
+func CalculateServerPublicKey(verifier []byte, serverPrivateKey []byte) []byte {
+	verifierBigInt := bytesToBigInt(verifier)
+	serverPrivateKeyBigInt := bytesToBigInt(serverPrivateKey)
+
+	interim := new(big.Int)
+	interim.Mul(kBigInt, verifierBigInt)
+	interim.Add(interim, big.NewInt(0).Exp(generatorBigInt, serverPrivateKeyBigInt, largeSafePrime))
+	return bigIntToBytes(serverKeySize, interim.Mod(interim, largeSafePrime))
+}
+
+// GenerateServerPrivateKey returns a random 32 byte key
+func GenerateServerPrivateKey() []byte {
+	key := make([]byte, serverKeySize)
+	_, _ = rand.Read(key)
+	return key
 }
 
 // Adapted from Kangaroux/go-wow-srp6, endian.go:
