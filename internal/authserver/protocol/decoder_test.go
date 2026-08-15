@@ -41,7 +41,7 @@ func TestDecodeUsername(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	request, ok := result.(LogonChallengeClientRequest)
+	request, ok := result.(LogonChallengeClientMessage)
 	if !ok {
 		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
 	}
@@ -55,7 +55,7 @@ func TestDecodeIp(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadClientMessage() error = %v", err)
 	}
-	request, ok := result.(LogonChallengeClientRequest)
+	request, ok := result.(LogonChallengeClientMessage)
 	if !ok {
 		t.Fatalf("Expected a LogonChallengeClientRequest, but got %T", result)
 	}

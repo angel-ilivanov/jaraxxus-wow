@@ -24,24 +24,24 @@ type CmdAuthLogonChallengeClient struct {
 	AccountNameLength uint8
 }
 
-type LogonChallengeClientRequest struct {
+type LogonChallengeClientMessage struct {
 	Ip          uint32
 	AccountName string
 }
 
-func (l LogonChallengeClientRequest) Opcode() uint8 {
+func (l LogonChallengeClientMessage) Opcode() uint8 {
 	return 0x00
 }
 
 func ParseLogonChallengeClient(conn io.Reader) (ClientMessage, error) {
 	packetBytes, err := assemblePacket(conn)
 	if err != nil {
-		return LogonChallengeClientRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
+		return LogonChallengeClientMessage{}, fmt.Errorf("error assembling logon challenge Packet %v", err)
 	}
 	parsedPacket, err := mapToStruct(packetBytes)
 
 	if err != nil {
-		return LogonChallengeClientRequest{}, fmt.Errorf("error mapping logon challenge Packet to struct %v", err)
+		return LogonChallengeClientMessage{}, fmt.Errorf("error mapping logon challenge Packet to struct %v", err)
 	}
 	return constructRequest(parsedPacket, packetBytes), nil
 }
@@ -81,8 +81,8 @@ func readName(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) stri
 	return string(nameBytes)
 }
 
-func constructRequest(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) LogonChallengeClientRequest {
-	return LogonChallengeClientRequest{
+func constructRequest(parsedPacket CmdAuthLogonChallengeClient, packetBytes []byte) LogonChallengeClientMessage {
+	return LogonChallengeClientMessage{
 		Ip:          binary.BigEndian.Uint32(parsedPacket.Ip[:]),
 		AccountName: readName(parsedPacket, packetBytes),
 	}
