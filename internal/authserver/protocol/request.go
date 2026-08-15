@@ -1,5 +1,5 @@
 package protocol
 
-type ClientMessage interface {
+type Request interface {
 	Opcode() Opcode
 }

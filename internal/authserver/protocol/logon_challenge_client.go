@@ -33,7 +33,7 @@ func (l LogonChallengeRequest) Opcode() Opcode {
 	return CMD_AUTH_LOGON_CHALLENGE
 }
 
-func DecodeLogonChallengeRequest(conn io.Reader) (ClientMessage, error) {
+func DecodeLogonChallengeRequest(conn io.Reader) (Request, error) {
 	packetBytes, err := assemblePacket(conn)
 	if err != nil {
 		return LogonChallengeRequest{}, fmt.Errorf("error assembling logon challenge Packet %v", err)

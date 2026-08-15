@@ -32,11 +32,11 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	session := &AuthSession{}
 
 	for {
-		message, err := protocol.DecodeRequest(conn)
+		request, err := protocol.DecodeRequest(conn)
 		if err != nil {
 			return
 		}
-		packet, err := s.messageHandler.HandleMessage(ctx, session, message)
+		packet, err := s.requestHandler.HandleMessage(ctx, session, request)
 		if err != nil {
 			fmt.Println(err)
 			return

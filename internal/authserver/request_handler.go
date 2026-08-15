@@ -8,13 +8,13 @@ import (
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver/protocol"
 )
 
-type MessageHandler struct {
+type RequestHandler struct {
 	store *accountstore.Store
 }
 
 // HandleMessage dispatches to the appropriate handler
-func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) ([]byte, error) {
-	switch message := message.(type) {
+func (handler *RequestHandler) HandleMessage(ctx context.Context, session *AuthSession, request protocol.Request) ([]byte, error) {
+	switch message := request.(type) {
 	case protocol.LogonChallengeRequest:
 		return handler.handleLogonChallenge(ctx, session, message)
 	default:
@@ -22,6 +22,6 @@ func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthS
 	}
 }
 
-func NewMessageHandler(store *accountstore.Store) *MessageHandler {
-	return &MessageHandler{store: store}
+func NewRequestHandler(store *accountstore.Store) *RequestHandler {
+	return &RequestHandler{store: store}
 }

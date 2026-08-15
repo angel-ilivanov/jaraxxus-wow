@@ -10,8 +10,8 @@ import (
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/srp6"
 )
 
-// handleLogonChallenge performs the logon-challenge use case
-func (handler *MessageHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, message protocol.LogonChallengeRequest) ([]byte, error) {
+// handleLogonChallenge updates session state and dispatches to encoder
+func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, message protocol.LogonChallengeRequest) ([]byte, error) {
 	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {

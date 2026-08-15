@@ -7,7 +7,7 @@ import (
 
 // Read opcode and choose appropriate Packet decoder
 
-func DecodeRequest(conn io.Reader) (ClientMessage, error) {
+func DecodeRequest(conn io.Reader) (Request, error) {
 	opcode := make([]byte, 1)
 	_, err := io.ReadFull(conn, opcode)
 	if err != nil {
