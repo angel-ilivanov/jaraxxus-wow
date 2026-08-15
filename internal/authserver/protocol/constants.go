@@ -4,7 +4,7 @@ type LoginResult uint8
 
 const (
 	Success            LoginResult = 0x00
-	FailUnknownAccount             = 0x01
+	FailUnknownAccount             = 0x04
 )
 
 type Opcode uint8
