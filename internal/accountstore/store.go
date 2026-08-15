@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -56,7 +55,7 @@ func (s *Store) Insert(
 		 ON CONFLICT ON CONSTRAINT account_username_unique DO NOTHING
 		 RETURNING id`,
 		pgx.StrictNamedArgs{
-			"username": strings.ToUpper(username),
+			"username": username,
 			"salt":     credentials.Salt,
 			"verifier": credentials.Verifier,
 		},
@@ -82,7 +81,7 @@ func (s *Store) FindForAuthentication(
 		`SELECT id, salt, verifier
 		 FROM public.account
 		 WHERE username = @username`,
-		pgx.StrictNamedArgs{"username": strings.ToUpper(username)},
+		pgx.StrictNamedArgs{"username": username},
 	).Scan(
 		&authentication.ID,
 		&authentication.Salt,
