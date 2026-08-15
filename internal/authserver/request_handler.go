@@ -14,11 +14,11 @@ type RequestHandler struct {
 
 // HandleRequest dispatches to the appropriate handler
 func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthSession, request protocol.Request) ([]byte, error) {
-	switch message := request.(type) {
+	switch request := request.(type) {
 	case protocol.LogonChallengeRequest:
-		return handler.handleLogonChallenge(ctx, session, message)
+		return handler.handleLogonChallenge(ctx, session, request)
 	default:
-		return nil, fmt.Errorf("unknown opcode")
+		return nil, fmt.Errorf("unsupported request type %T", request)
 	}
 }
 
