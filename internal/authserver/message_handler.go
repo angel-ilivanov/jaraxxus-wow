@@ -14,9 +14,9 @@ type MessageHandler struct {
 
 // HandleMessage dispatches to the appropriate handler
 func (handler *MessageHandler) HandleMessage(ctx context.Context, session *AuthSession, message protocol.ClientMessage) ([]byte, error) {
-	switch message.Opcode() {
-	case 0x00:
-		return handler.handleLogonChallengeMessage(ctx, session, message.(protocol.LogonChallengeClientMessage))
+	switch message := message.(type) {
+	case protocol.LogonChallengeClientMessage:
+		return handler.handleLogonChallengeMessage(ctx, session, message)
 	default:
 		return nil, fmt.Errorf("unknown opcode")
 	}
