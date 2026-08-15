@@ -25,7 +25,7 @@ type logonChallengeWire struct {
 }
 
 type LogonChallengeRequest struct {
-	Ip          uint32
+	IP          uint32
 	AccountName string
 }
 
@@ -81,7 +81,7 @@ func decodeAccountName(parsedPacket logonChallengeWire, packetBytes []byte) stri
 
 func newLogonChallengeRequest(parsedPacket logonChallengeWire, packetBytes []byte) LogonChallengeRequest {
 	return LogonChallengeRequest{
-		Ip:          binary.BigEndian.Uint32(parsedPacket.IP[:]),
+		IP:          binary.BigEndian.Uint32(parsedPacket.IP[:]),
 		AccountName: decodeAccountName(parsedPacket, packetBytes),
 	}
 }
