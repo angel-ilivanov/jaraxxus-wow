@@ -93,8 +93,8 @@ func TestDecodeClientProof(t *testing.T) {
 		0x6b, 0x1e, 0x48, 0x1b, 0x4d, 0x04, 0xa1, 0x18, 0xd8, 0xf2,
 		0xde, 0x5c, 0x59, 0xd5, 0x5c, 0x81, 0x2e, 0x65, 0xec, 0x3e,
 	}
-	if bytes.Compare(request.clientProof, expected) != 0 {
-		t.Fatalf("Server incorrectly decodes client proof, expected %v, but got %v", expected, request.clientProof)
+	if bytes.Compare(request.ClientProof, expected) != 0 {
+		t.Fatalf("Server incorrectly decodes client proof, expected %v, but got %v", expected, request.ClientProof)
 	}
 }
 
@@ -112,7 +112,7 @@ func TestDecodeClientPublicKey(t *testing.T) {
 		0xee, 0x4e, 0x2e, 0x45, 0xe1, 0xf7, 0xcc, 0x8f, 0x1c, 0xf5, 0xee, 0x8e, 0x11, 0xce,
 		0xd3, 0x1d, 0xd7, 0x08,
 	}
-	if bytes.Compare(request.clientPublicKey, expected) != 0 {
-		t.Fatalf("Server incorrectly decodes client proof, expected %v, but got %v", expected, request.clientPublicKey)
+	if bytes.Compare(request.ClientPublicKey, expected) != 0 {
+		t.Fatalf("Server incorrectly decodes client proof, expected %v, but got %v", expected, request.ClientPublicKey)
 	}
 }

@@ -17,8 +17,8 @@ type logonProofWire struct {
 }
 
 type LogonProofRequest struct {
-	clientPublicKey []byte
-	clientProof     []byte
+	ClientPublicKey []byte
+	ClientProof     []byte
 }
 
 func (l LogonProofRequest) isRequest() {}
@@ -62,7 +62,7 @@ func decodeLogonProofWire(packetBytes []byte) (logonProofWire, error) {
 
 func newLogonProofRequest(wire logonProofWire) LogonProofRequest {
 	return LogonProofRequest{
-		clientPublicKey: wire.ClientPublicKey[:],
-		clientProof:     wire.ClientProof[:],
+		ClientPublicKey: wire.ClientPublicKey[:],
+		ClientProof:     wire.ClientProof[:],
 	}
 }
