@@ -18,8 +18,7 @@ func DecodeRequest(conn io.Reader) (Request, error) {
 	case byte(CmdAuthLogonChallenge):
 		return DecodeLogonChallengeRequest(conn)
 	case byte(CmdAuthLogonProof):
-		fmt.Println("Received proof packet from client, handling not implemented")
-		return nil, fmt.Errorf("logon proof handling not implemented")
+		return DecodeLogonProofRequest(conn)
 	default:
 		return nil, fmt.Errorf("unknown opcode")
 	}
