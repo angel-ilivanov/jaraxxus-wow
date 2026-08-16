@@ -13,6 +13,7 @@ const (
 	LargeSafePrimeLength = 32
 	saltLength           = 32
 	serverKeyLength      = 32
+	sessionKeyLength     = 40
 	k                    = 3
 )
 
@@ -67,7 +68,8 @@ func GenerateServerPrivateKey() []byte {
 }
 
 // ServerSKey = (clientPublicKey * (verifier^u % largeSafePrime))^serverPrivateKey % largeSafePrime
-func CalculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
+// Intermediate value for calculating the session key
+func calculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
 	clientPublicKeyInt := bytesToBigInt(clientPublicKey)
 	passwordVerifierInt := bytesToBigInt(passwordVerifier)
 	uInt := bytesToBigInt(u)
@@ -79,12 +81,55 @@ func CalculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []by
 	return bigIntToBytes(serverKeyLength, result)
 }
 
-// u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating session key
+// u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating the server's S key
 func calculateU(clientPublicKey []byte, serverPublicKey []byte) []byte {
 	h := sha1.New()
 	h.Write(clientPublicKey)
 	h.Write(serverPublicKey)
 	return h.Sum(nil)
+}
+
+func shaInterleave(sKey []byte) []byte {
+	split := splitSKey(sKey) //even length
+	var evenBuffer []byte
+	var oddBuffer []byte
+
+	for i := 0; i < len(split); i++ {
+		if i%2 == 0 {
+			evenBuffer = append(evenBuffer, split[i])
+		} else {
+			oddBuffer = append(oddBuffer, split[i])
+		}
+	}
+
+	evenHash := sha1.Sum(evenBuffer)
+	oddHash := sha1.Sum(oddBuffer)
+
+	sessionKey := make([]byte, sessionKeyLength)
+	evenHashIndex := 0
+	oddHashIndex := 0
+	for i := 0; i < sessionKeyLength; i++ {
+		if i%2 == 0 {
+			sessionKey[i] = evenHash[evenHashIndex]
+			evenHashIndex++
+		} else {
+			sessionKey[i] = oddHash[oddHashIndex]
+			oddHashIndex++
+		}
+	}
+	return sessionKey
+}
+
+func splitSKey(sKey []byte) []byte {
+	// While the least significant byte is 0, (little endian)
+	// remove the 2 least significant bytes.
+	// Always keep the length even without
+	// trailing zero elements
+
+	for sKey[0] == 0 {
+		sKey = sKey[2:]
+	}
+	return sKey
 }
 
 // Adapted from Kangaroux/go-wow-srp6, endian.go:
