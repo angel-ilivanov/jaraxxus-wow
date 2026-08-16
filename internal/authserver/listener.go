@@ -1,6 +1,7 @@
 package authserver
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -8,7 +9,7 @@ import (
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver/protocol"
 )
 
-func (s *Server) Start(port string) {
+func (s *Server) Start(ctx context.Context, port string) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("error establishing listener %v", err)
@@ -21,19 +22,31 @@ func (s *Server) Start(port string) {
 			fmt.Printf("Error accepting connection: %s", err)
 			continue
 		}
-		go s.handleConnection(conn)
+		go s.handleConnection(ctx, conn)
 	}
 }
 
-func (s *Server) handleConnection(conn net.Conn) {
+func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	defer conn.Close()
 	fmt.Println("Connection received")
+	session := &AuthSession{}
 
 	for {
-		_, err := protocol.ReadClientMessage(conn) //request, err
+		request, err := protocol.DecodeRequest(conn)
 		if err != nil {
 			return
 		}
-		//response = server.HandleMessage(session, request)
+		packet, err := s.requestHandler.HandleRequest(ctx, session, request)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("packet length:", len(packet))
+		bytesWritten, err := conn.Write(packet)
+		fmt.Println("bytes written:", bytesWritten)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 }

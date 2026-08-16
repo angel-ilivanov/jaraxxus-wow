@@ -3,9 +3,9 @@ package authserver
 import "github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 
 type Server struct {
-	accountStore *accountstore.Store
+	requestHandler *RequestHandler
 }
 
 func New(accountStore *accountstore.Store) *Server {
-	return &Server{accountStore: accountStore}
+	return &Server{requestHandler: NewRequestHandler(accountStore)}
 }

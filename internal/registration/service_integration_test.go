@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
@@ -14,7 +15,7 @@ func TestRegisterAccount_Success(t *testing.T) {
 	ctx := context.Background()
 	service := setup(ctx, t)
 
-	username := "acc_" + rand.Text()[0:6]
+	username := strings.ToUpper("acc_" + rand.Text()[0:6])
 	password := "MVRVMUJFWRA0IBVK"
 
 	id, err := service.CreateAccount(ctx, username, password)
@@ -33,7 +34,7 @@ func TestRegisterAccount_UsernameTaken(t *testing.T) {
 	ctx := context.Background()
 	service := setup(ctx, t)
 
-	username := "acc_" + rand.Text()[0:6]
+	username := strings.ToUpper("acc_" + rand.Text()[0:6])
 	password := "MVRVMUJFWRA0IBVK"
 
 	_, err := service.CreateAccount(ctx, username, password)
