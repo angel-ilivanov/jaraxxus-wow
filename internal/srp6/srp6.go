@@ -67,6 +67,12 @@ func GenerateServerPrivateKey() []byte {
 	return key
 }
 
+func CalculateServerSessionKey(clientPublicKey []byte, serverPublicKey []byte, passwordVerifier []byte, serverPrivateKey []byte) []byte {
+	u := calculateU(clientPublicKey, serverPublicKey)
+	sKey := calculateServerSKey(clientPublicKey, passwordVerifier, u, serverPrivateKey)
+	return shaInterleave(sKey)
+}
+
 // ServerSKey = (clientPublicKey * (verifier^u % largeSafePrime))^serverPrivateKey % largeSafePrime
 // Intermediate value for calculating the session key
 func calculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
