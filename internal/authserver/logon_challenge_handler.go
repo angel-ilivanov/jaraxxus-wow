@@ -22,6 +22,7 @@ func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session
 	identity := accountIdentity{
 		accountID: creds.ID,
 		username:  request.AccountName,
+		salt:      creds.Salt,
 	}
 	state := generateLogonChallengeSRPState(creds)
 	err = updateLogonChallengeSession(session, state, identity)

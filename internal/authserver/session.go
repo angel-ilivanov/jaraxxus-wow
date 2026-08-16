@@ -19,6 +19,7 @@ const (
 type accountIdentity struct {
 	accountID int64
 	username  string
+	salt      []byte
 }
 type srpState struct {
 	salt             []byte
