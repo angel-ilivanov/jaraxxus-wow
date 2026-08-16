@@ -27,6 +27,10 @@ var (
 	largeSafePrime  = bytesToBigInt(LargeSafePrimeLittleEndian)
 	generatorBigInt = big.NewInt(Generator)
 	kBigInt         = big.NewInt(k)
+	xorHash         = []byte{
+		0xdd, 0x7b, 0xb0, 0x3a, 0x38, 0xac, 0x73, 0x11, 0x3, 0x98,
+		0x7c, 0x5a, 0x50, 0x6f, 0xca, 0x96, 0x6c, 0x7b, 0xc2, 0xa7,
+	}
 )
 
 func GenerateSalt() []byte {
@@ -74,6 +78,18 @@ func CalculateServerProof(clientPublicKey []byte, clientProof []byte, sessionKey
 	hash.Write(clientProof)
 	hash.Write(sessionKey)
 	return hash.Sum(nil)
+}
+
+func CalculateExpectedClientProof(username string, sessionKey []byte, clientPublicKey []byte, serverPublicKey []byte, salt []byte) []byte {
+	userHash := sha1.Sum([]byte(username))
+	hash := sha1.New()
+	hash.Write(xorHash)
+	hash.Write(userHash[:])
+	hash.Write(salt)
+	hash.Write(clientPublicKey)
+	hash.Write(serverPublicKey)
+	hash.Write(sessionKey)
+	return hash.Sum(nil)[:]
 }
 
 func CalculateServerSessionKey(clientPublicKey []byte, serverPublicKey []byte, passwordVerifier []byte, serverPrivateKey []byte) []byte {
