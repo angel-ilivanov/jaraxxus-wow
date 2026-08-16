@@ -66,9 +66,18 @@ func GenerateServerPrivateKey() []byte {
 	return key
 }
 
-//func CalculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
-//
-//}
+// ServerSKey = (clientPublicKey * (verifier^u % largeSafePrime))^serverPrivateKey % largeSafePrime
+func CalculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
+	clientPublicKeyInt := bytesToBigInt(clientPublicKey)
+	passwordVerifierInt := bytesToBigInt(passwordVerifier)
+	uInt := bytesToBigInt(u)
+	serverPrivateKeyInt := bytesToBigInt(serverPrivateKey)
+
+	result := big.NewInt(0).Exp(passwordVerifierInt, uInt, largeSafePrime)
+	result = big.NewInt(0).Mul(clientPublicKeyInt, result)
+	result = big.NewInt(0).Exp(result, serverPrivateKeyInt, largeSafePrime)
+	return bigIntToBytes(serverKeyLength, result)
+}
 
 // u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating session key
 func calculateU(clientPublicKey []byte, serverPublicKey []byte) []byte {
