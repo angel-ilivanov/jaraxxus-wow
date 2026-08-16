@@ -67,6 +67,15 @@ func GenerateServerPrivateKey() []byte {
 	return key
 }
 
+// serverProof = SHA1(clientPublicKey | clientProof | sessionKey)
+func CalculateServerProof(clientPublicKey []byte, clientProof []byte, sessionKey []byte) []byte {
+	hash := sha1.New()
+	hash.Write(clientPublicKey)
+	hash.Write(clientProof)
+	hash.Write(sessionKey)
+	return hash.Sum(nil)
+}
+
 func CalculateServerSessionKey(clientPublicKey []byte, serverPublicKey []byte, passwordVerifier []byte, serverPrivateKey []byte) []byte {
 	u := calculateU(clientPublicKey, serverPublicKey)
 	sKey := calculateServerSKey(clientPublicKey, passwordVerifier, u, serverPrivateKey)
@@ -89,10 +98,10 @@ func calculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []by
 
 // u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating the server's S key
 func calculateU(clientPublicKey []byte, serverPublicKey []byte) []byte {
-	h := sha1.New()
-	h.Write(clientPublicKey)
-	h.Write(serverPublicKey)
-	return h.Sum(nil)
+	hash := sha1.New()
+	hash.Write(clientPublicKey)
+	hash.Write(serverPublicKey)
+	return hash.Sum(nil)
 }
 
 func shaInterleave(sKey []byte) []byte {
