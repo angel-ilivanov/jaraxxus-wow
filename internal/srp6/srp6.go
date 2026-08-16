@@ -66,6 +66,18 @@ func GenerateServerPrivateKey() []byte {
 	return key
 }
 
+//func CalculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
+//
+//}
+
+// u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating session key
+func calculateU(clientPublicKey []byte, serverPublicKey []byte) []byte {
+	h := sha1.New()
+	h.Write(clientPublicKey)
+	h.Write(serverPublicKey)
+	return h.Sum(nil)
+}
+
 // Adapted from Kangaroux/go-wow-srp6, endian.go:
 // https://github.com/Kangaroux/go-wow-srp6/blob/7a61e15fd8d75f4ebe8ac91e07eef140219ef8ff/endian.go
 // bytesToBigInt returns a little endian big integer from a big endian byte array.
