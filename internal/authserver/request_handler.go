@@ -17,6 +17,8 @@ func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthS
 	switch request := request.(type) {
 	case protocol.LogonChallengeRequest:
 		return handler.handleLogonChallenge(ctx, session, request)
+	case protocol.LogonProofRequest:
+		return handler.handleLogonProof(ctx, session, request)
 	default:
 		return nil, fmt.Errorf("unsupported request type %T", request)
 	}
