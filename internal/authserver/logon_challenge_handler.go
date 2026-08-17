@@ -11,29 +11,29 @@ import (
 )
 
 // handleLogonChallenge updates session state and dispatches to encoder
-func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, message protocol.LogonChallengeRequest) ([]byte, error) {
-	creds, err := handler.store.FindForAuthentication(ctx, message.AccountName)
+func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, request protocol.LogonChallengeRequest) (protocol.Response, error) {
+	creds, err := handler.store.FindForAuthentication(ctx, request.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {
-			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.ResultUnknownAccount}), nil
+			return protocol.LogonChallengeResponse{Result: protocol.ResultUnknownAccount}, nil
 		}
 		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}
 	identity := accountIdentity{
 		accountID: creds.ID,
-		username:  message.AccountName,
+		username:  request.AccountName,
+		salt:      creds.Salt,
 	}
-	state := generateSRPState(creds)
-	err = updateSession(session, state, identity)
+	state := generateLogonChallengeSRPState(creds)
+	err = updateLogonChallengeSession(session, state, identity)
 	if err != nil {
 		return nil, fmt.Errorf("update authentication session: %w", err)
 	}
-	response := constructResponse(session.srpState.serverPublicKey, creds.Salt)
-	packet := protocol.EncodeLogonChallengeResponse(response)
-	return packet, nil
+	response := constructLogonChallengeResponse(session.srpState.serverPublicKey, creds.Salt)
+	return response, nil
 }
 
-func generateSRPState(creds accountstore.Authentication) *srpState {
+func generateLogonChallengeSRPState(creds accountstore.Authentication) *srpState {
 	serverPrivateKey := srp6.GenerateServerPrivateKey()
 	serverPublicKey := srp6.CalculateServerPublicKey(creds.Verifier, serverPrivateKey)
 	return &srpState{
@@ -43,7 +43,7 @@ func generateSRPState(creds accountstore.Authentication) *srpState {
 		serverPublicKey:  serverPublicKey,
 	}
 }
-func constructResponse(serverPublicKey []byte, salt []byte) protocol.LogonChallengeResponse {
+func constructLogonChallengeResponse(serverPublicKey []byte, salt []byte) protocol.LogonChallengeResponse {
 	return protocol.LogonChallengeResponse{
 		Result:          protocol.ResultSuccess,
 		ServerPublicKey: serverPublicKey,
@@ -51,7 +51,7 @@ func constructResponse(serverPublicKey []byte, salt []byte) protocol.LogonChalle
 	}
 }
 
-func updateSession(session *AuthSession, state *srpState, identity accountIdentity) error {
+func updateLogonChallengeSession(session *AuthSession, state *srpState, identity accountIdentity) error {
 	if session.phase != PhaseAwaitingChallenge {
 		return fmt.Errorf("session is not in the AwaitingChallenge phase")
 	}

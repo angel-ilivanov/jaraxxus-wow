@@ -13,6 +13,7 @@ const (
 	LargeSafePrimeLength = 32
 	saltLength           = 32
 	serverKeyLength      = 32
+	sessionKeyLength     = 40
 	k                    = 3
 )
 
@@ -26,6 +27,10 @@ var (
 	largeSafePrime  = bytesToBigInt(LargeSafePrimeLittleEndian)
 	generatorBigInt = big.NewInt(Generator)
 	kBigInt         = big.NewInt(k)
+	xorHash         = []byte{
+		0xdd, 0x7b, 0xb0, 0x3a, 0x38, 0xac, 0x73, 0x11, 0x3, 0x98,
+		0x7c, 0x5a, 0x50, 0x6f, 0xca, 0x96, 0x6c, 0x7b, 0xc2, 0xa7,
+	}
 )
 
 func GenerateSalt() []byte {
@@ -64,6 +69,98 @@ func GenerateServerPrivateKey() []byte {
 	key := make([]byte, serverKeyLength)
 	_, _ = rand.Read(key)
 	return key
+}
+
+// serverProof = SHA1(clientPublicKey | clientProof | sessionKey)
+func CalculateServerProof(clientPublicKey []byte, clientProof []byte, sessionKey []byte) []byte {
+	hash := sha1.New()
+	hash.Write(clientPublicKey)
+	hash.Write(clientProof)
+	hash.Write(sessionKey)
+	return hash.Sum(nil)
+}
+
+func CalculateExpectedClientProof(username string, sessionKey []byte, clientPublicKey []byte, serverPublicKey []byte, salt []byte) []byte {
+	userHash := sha1.Sum([]byte(username))
+	hash := sha1.New()
+	hash.Write(xorHash)
+	hash.Write(userHash[:])
+	hash.Write(salt)
+	hash.Write(clientPublicKey)
+	hash.Write(serverPublicKey)
+	hash.Write(sessionKey)
+	return hash.Sum(nil)[:]
+}
+
+func CalculateServerSessionKey(clientPublicKey []byte, serverPublicKey []byte, passwordVerifier []byte, serverPrivateKey []byte) []byte {
+	u := calculateU(clientPublicKey, serverPublicKey)
+	sKey := calculateServerSKey(clientPublicKey, passwordVerifier, u, serverPrivateKey)
+	return shaInterleave(sKey)
+}
+
+// ServerSKey = (clientPublicKey * (verifier^u % largeSafePrime))^serverPrivateKey % largeSafePrime
+// Intermediate value for calculating the session key
+func calculateServerSKey(clientPublicKey []byte, passwordVerifier []byte, u []byte, serverPrivateKey []byte) []byte {
+	clientPublicKeyInt := bytesToBigInt(clientPublicKey)
+	passwordVerifierInt := bytesToBigInt(passwordVerifier)
+	uInt := bytesToBigInt(u)
+	serverPrivateKeyInt := bytesToBigInt(serverPrivateKey)
+
+	result := big.NewInt(0).Exp(passwordVerifierInt, uInt, largeSafePrime)
+	result = big.NewInt(0).Mul(clientPublicKeyInt, result)
+	result = big.NewInt(0).Exp(result, serverPrivateKeyInt, largeSafePrime)
+	return bigIntToBytes(serverKeyLength, result)
+}
+
+// u = SHA1( clientPublicKey | serverPublicKey ), intermediate value for calculating the server's S key
+func calculateU(clientPublicKey []byte, serverPublicKey []byte) []byte {
+	hash := sha1.New()
+	hash.Write(clientPublicKey)
+	hash.Write(serverPublicKey)
+	return hash.Sum(nil)
+}
+
+func shaInterleave(sKey []byte) []byte {
+	split := splitSKey(sKey) //even length
+	var evenBuffer []byte
+	var oddBuffer []byte
+
+	for i := 0; i < len(split); i++ {
+		if i%2 == 0 {
+			evenBuffer = append(evenBuffer, split[i])
+		} else {
+			oddBuffer = append(oddBuffer, split[i])
+		}
+	}
+
+	evenHash := sha1.Sum(evenBuffer)
+	oddHash := sha1.Sum(oddBuffer)
+
+	sessionKey := make([]byte, sessionKeyLength)
+	evenHashIndex := 0
+	oddHashIndex := 0
+	for i := 0; i < sessionKeyLength; i++ {
+		if i%2 == 0 {
+			sessionKey[i] = evenHash[evenHashIndex]
+			evenHashIndex++
+		} else {
+			sessionKey[i] = oddHash[oddHashIndex]
+			oddHashIndex++
+		}
+	}
+	return sessionKey
+}
+
+func splitSKey(sKey []byte) []byte {
+	// While the least significant byte is 0, (little endian)
+	// remove the 2 least significant bytes.
+	// Always keep the length even without
+	// trailing zero elements
+
+	for sKey[0] == 0 {
+		sKey = sKey[2:]
+	}
+	return sKey
 }
 
 // Adapted from Kangaroux/go-wow-srp6, endian.go:

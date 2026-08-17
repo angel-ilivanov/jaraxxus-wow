@@ -13,10 +13,12 @@ type RequestHandler struct {
 }
 
 // HandleRequest dispatches to the appropriate handler
-func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthSession, request protocol.Request) ([]byte, error) {
+func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthSession, request protocol.Request) (protocol.Response, error) {
 	switch request := request.(type) {
 	case protocol.LogonChallengeRequest:
 		return handler.handleLogonChallenge(ctx, session, request)
+	case protocol.LogonProofRequest:
+		return handler.handleLogonProof(ctx, session, request)
 	default:
 		return nil, fmt.Errorf("unsupported request type %T", request)
 	}

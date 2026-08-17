@@ -19,6 +19,7 @@ const (
 type accountIdentity struct {
 	accountID int64
 	username  string
+	salt      []byte
 }
 type srpState struct {
 	salt             []byte
@@ -45,4 +46,8 @@ func (s *AuthSession) markAuthenticated(sessionKey []byte) error {
 	s.srpState = nil
 	s.phase = PhaseAuthenticated
 	return nil
+}
+
+func (s *AuthSession) resetForLogon() {
+	*s = AuthSession{phase: PhaseAwaitingChallenge}
 }

@@ -19,7 +19,11 @@ func DecodeRequest(conn io.Reader) (Request, error) {
 		return DecodeLogonChallengeRequest(conn)
 	case byte(CmdAuthLogonProof):
 		return DecodeLogonProofRequest(conn)
+	case 0x10:
+		fmt.Println("received Realm List request, handling not yet implemented")
+		return nil, fmt.Errorf("handling for realm list request not yet implemented")
 	default:
+		fmt.Println("received unknown opcode:", opcode[0])
 		return nil, fmt.Errorf("unknown opcode")
 	}
 }
