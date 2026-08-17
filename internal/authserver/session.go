@@ -43,7 +43,11 @@ func (s *AuthSession) markAuthenticated(sessionKey []byte) error {
 		return fmt.Errorf("session cannot be authenticated at phase %v", s.phase)
 	}
 	s.sessionKey = sessionKey
-	//s.srpState = nil
+	s.srpState = nil
 	s.phase = PhaseAuthenticated
 	return nil
+}
+
+func (s *AuthSession) resetForLogon() {
+	*s = AuthSession{phase: PhaseAwaitingChallenge}
 }

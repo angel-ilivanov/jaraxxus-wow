@@ -23,6 +23,7 @@ func DecodeRequest(conn io.Reader) (Request, error) {
 		fmt.Println("received Realm List request, handling not yet implemented")
 		return nil, fmt.Errorf("handling for realm list request not yet implemented")
 	default:
+		fmt.Println("received unknown opcode:", opcode[0])
 		return nil, fmt.Errorf("unknown opcode")
 	}
 }
