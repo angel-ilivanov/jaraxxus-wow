@@ -19,6 +19,8 @@ func (handler *RequestHandler) HandleRequest(ctx context.Context, session *AuthS
 		return handler.handleLogonChallenge(ctx, session, request)
 	case protocol.LogonProofRequest:
 		return handler.handleLogonProof(ctx, session, request)
+	case protocol.RealmListRequest:
+		return nil, fmt.Errorf("responding to realm list request not implemented yet")
 	default:
 		return nil, fmt.Errorf("unsupported request type %T", request)
 	}
