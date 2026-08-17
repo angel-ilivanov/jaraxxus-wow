@@ -10,14 +10,14 @@ import (
 )
 
 // handleLogonProof updates session state and dispatches to encoder
-func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *AuthSession, request protocol.LogonProofRequest) ([]byte, error) {
+func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *AuthSession, request protocol.LogonProofRequest) (protocol.Response, error) {
 	sessionKey := calculateSessionKey(session, request)
 
 	validProof := isValidClientProof(session, request, sessionKey)
 	if !validProof {
 		session.resetForLogon()
 		response := protocol.LogonProofResponse{Result: protocol.ResultIncorrectPassword, ServerProof: nil}
-		return protocol.EncodeLogonProofResponse(response), nil
+		return response, nil
 	}
 
 	err := session.markAuthenticated(sessionKey)
@@ -32,7 +32,7 @@ func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *Au
 
 	serverProof := calculateServerProof(request, sessionKey)
 	response := protocol.LogonProofResponse{Result: protocol.ResultSuccess, ServerProof: serverProof}
-	return protocol.EncodeLogonProofResponse(response), nil
+	return response, nil
 }
 
 func isValidClientProof(session *AuthSession, request protocol.LogonProofRequest, sessionKey []byte) bool {

@@ -13,6 +13,8 @@ type LogonChallengeResponse struct {
 	Salt            []byte
 }
 
+func (l LogonChallengeResponse) isResponse() {}
+
 var crcSalt = make([]byte, 16)
 
 func EncodeLogonChallengeResponse(response LogonChallengeResponse) []byte {

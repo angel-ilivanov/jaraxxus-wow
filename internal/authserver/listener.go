@@ -36,11 +36,12 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		if err != nil {
 			return
 		}
-		packet, err := s.requestHandler.HandleRequest(ctx, session, request)
+		response, err := s.requestHandler.HandleRequest(ctx, session, request)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
+		packet, err := protocol.EncodeResponse(response)
 		fmt.Println("packet length:", len(packet))
 		bytesWritten, err := conn.Write(packet)
 		fmt.Println("bytes written:", bytesWritten)

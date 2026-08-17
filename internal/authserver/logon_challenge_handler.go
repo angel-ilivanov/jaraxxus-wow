@@ -11,11 +11,11 @@ import (
 )
 
 // handleLogonChallenge updates session state and dispatches to encoder
-func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, request protocol.LogonChallengeRequest) ([]byte, error) {
+func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session *AuthSession, request protocol.LogonChallengeRequest) (protocol.Response, error) {
 	creds, err := handler.store.FindForAuthentication(ctx, request.AccountName)
 	if err != nil {
 		if errors.Is(err, accountstore.ErrNotFound) {
-			return protocol.EncodeLogonChallengeResponse(protocol.LogonChallengeResponse{Result: protocol.ResultUnknownAccount}), nil
+			return protocol.LogonChallengeResponse{Result: protocol.ResultUnknownAccount}, nil
 		}
 		return nil, fmt.Errorf("fetch authentication data: %w", err)
 	}
@@ -30,8 +30,7 @@ func (handler *RequestHandler) handleLogonChallenge(ctx context.Context, session
 		return nil, fmt.Errorf("update authentication session: %w", err)
 	}
 	response := constructLogonChallengeResponse(session.srpState.serverPublicKey, creds.Salt)
-	packet := protocol.EncodeLogonChallengeResponse(response)
-	return packet, nil
+	return response, nil
 }
 
 func generateLogonChallengeSRPState(creds accountstore.Authentication) *srpState {
