@@ -8,6 +8,8 @@ func EncodeResponse(response Response) ([]byte, error) {
 		return EncodeLogonChallengeResponse(response.(LogonChallengeResponse)), nil
 	case LogonProofResponse:
 		return EncodeLogonProofResponse(response.(LogonProofResponse)), nil
+	case RealmListResponse:
+		return EncodeRealmListResponse(response.(RealmListResponse)), nil
 	default:
 		return nil, fmt.Errorf("unknown response type")
 	}
