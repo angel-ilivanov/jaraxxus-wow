@@ -5,45 +5,47 @@ import (
 	"encoding/binary"
 )
 
-var size = uint16(23 + len(realmName) + len(addressPort))
 var headerPadding = make([]byte, 4)
 var realmName = []byte("Jaraxxus\x00")
-var addressPort = make([]byte, 2)
-var population = []byte{0x00, 0x00, 0x00, 0x00}               //MEDIUM
-var buildSpecification = []byte{0x03, 0x03, 0x05, 0x34, 0x30} //3.3.5, build 12340
+var population = []byte{0x00, 0x00, 0x00, 0x00} //MEDIUM
 var footerPadding = make([]byte, 2)
+var numberOfRealms = []byte{0x01, 0x00} // one
+
+const (
+	flagRecommendedRealm  = 0x20
+	categoryEuropeEnglish = 0x01
+	realmId               = 0x01
+	realmTypePvp          = 0x01
+	realmLockDisabled     = 0x00
+)
 
 type RealmListResponse struct {
-	NumChars uint8
+	NumChars           uint8
+	WorldServerAddress string
 }
 
 func (r RealmListResponse) isResponse() {}
 
 func EncodeRealmListResponse(response RealmListResponse) []byte {
-	sizeLittleEndian := make([]byte, 2)
-	binary.LittleEndian.PutUint16(sizeLittleEndian, size)
+	addressPort := append([]byte(response.WorldServerAddress), 0x00) // Append \0x00 byte
+	var size = uint16(18 + len(realmName) + len(addressPort))        // packet size without opcode and size
+	packetSizeLittleEndian := make([]byte, 2)
+	binary.LittleEndian.PutUint16(packetSizeLittleEndian, size)
 
 	var buf bytes.Buffer
 	buf.WriteByte(CmdRealmList)
-	//Size
-	buf.Write(sizeLittleEndian)
+	buf.Write(packetSizeLittleEndian)
 	buf.Write(headerPadding)
-	buf.Write([]byte{0x01, 0x00}) //NUMBER OF REALMS, TODO: SHOW NICER REPRESENTATION
-	//realm type:
-	buf.WriteByte(0x00)
-	//locked:
-	buf.WriteByte(0x00)
-	//realm flags:
-	buf.WriteByte(0x04)
+	buf.Write(numberOfRealms)
+	buf.WriteByte(realmTypePvp)
+	buf.WriteByte(realmLockDisabled)
+	buf.WriteByte(flagRecommendedRealm)
 	buf.Write(realmName)
-	buf.Write(addressPort) //2 bytes currently
+	buf.Write(addressPort)
 	buf.Write(population)
 	buf.WriteByte(response.NumChars)
-	//realm category:
-	buf.WriteByte(0x00) //DEFAULT
-	//realm id:
-	buf.WriteByte(0x00)
-	buf.Write(buildSpecification)
+	buf.WriteByte(categoryEuropeEnglish)
+	buf.WriteByte(realmId)
 	buf.Write(footerPadding)
 	return buf.Bytes()
 }
