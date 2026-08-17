@@ -12,5 +12,6 @@ type Opcode uint8
 
 const (
 	CmdAuthLogonChallenge Opcode = 0x00
-	CmdAuthLogonProof     Opcode = 0x01
+	CmdAuthLogonProof            = 0x01
+	CmdRealmList                 = 0x10
 )
