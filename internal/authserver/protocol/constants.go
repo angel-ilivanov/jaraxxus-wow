@@ -3,8 +3,9 @@ package protocol
 type LoginResult uint8
 
 const (
-	ResultSuccess        LoginResult = 0x00
-	ResultUnknownAccount             = 0x04
+	ResultSuccess           LoginResult = 0x00
+	ResultUnknownAccount                = 0x04
+	ResultIncorrectPassword             = 0x05
 )
 
 type Opcode uint8

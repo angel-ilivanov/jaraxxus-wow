@@ -22,7 +22,7 @@ func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *Au
 
 	validProof := isValidClientProof(session, request)
 	if !validProof {
-		response := constructLogonProofResponse(protocol.ResultUnknownAccount, nil)
+		response := constructLogonProofResponse(protocol.ResultIncorrectPassword, nil)
 		return protocol.EncodeLogonProofResponse(response), nil
 	}
 
@@ -45,6 +45,7 @@ func constructLogonProofResponse(result protocol.LoginResult, serverProof []byte
 }
 
 func updateLogonProofSession(session *AuthSession, request protocol.LogonProofRequest) error {
+	fmt.Println("updating session with key")
 	if session.phase != PhaseAwaitingProof {
 		return fmt.Errorf("session is not in the AwaitingProof phase")
 	}
@@ -57,10 +58,13 @@ func updateLogonProofSession(session *AuthSession, request protocol.LogonProofRe
 	if err != nil {
 		return fmt.Errorf("error switching session state: %w", err)
 	}
+	fmt.Println("session successfully updated")
 	return nil
 }
 
 func isValidClientProof(session *AuthSession, request protocol.LogonProofRequest) bool {
+	fmt.Println("validating client proof...")
+
 	expectedClientProof := srp6.CalculateExpectedClientProof(
 		session.identity.username,
 		session.sessionKey,
@@ -68,8 +72,12 @@ func isValidClientProof(session *AuthSession, request protocol.LogonProofRequest
 		session.srpState.serverPublicKey,
 		session.identity.salt)
 
-	if subtle.ConstantTimeCompare(request.ClientProof, expectedClientProof) != 0 {
+	fmt.Println("expected proof calculated")
+
+	if subtle.ConstantTimeCompare(request.ClientProof, expectedClientProof) == 0 {
+		fmt.Println("invalid client proof")
 		return false
 	}
+	fmt.Println("client proof confirmed to be valid")
 	return true
 }
