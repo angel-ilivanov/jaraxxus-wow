@@ -55,7 +55,7 @@ func (s *Server) processRequest(ctx context.Context, logger *slog.Logger, sessio
 	request, err := protocol.DecodeRequest(conn)
 	if err != nil {
 		logDecodeError(ctx, logger, err)
-		return fmt.Errorf("failed to decode request")
+		return fmt.Errorf("failed to decode request: %w", err)
 	}
 	logRequestInfo(ctx, logger, request)
 
@@ -65,13 +65,14 @@ func (s *Server) processRequest(ctx context.Context, logger *slog.Logger, sessio
 			ctx,
 			"failed to handle client request",
 			slog.Any("err", err))
-		return fmt.Errorf("failed to handle client request")
+		return fmt.Errorf("failed to handle client request: %w", err)
 	}
 	logResponseInfo(ctx, logger, response)
 
 	packet, err := protocol.EncodeResponse(response)
 	if err != nil {
 		logger.WarnContext(ctx, "failed to encode unknown response", "err", err)
+		return fmt.Errorf("failed to encode unknown response: %w", err)
 	}
 	logger.DebugContext(ctx, "encoded response packet",
 		slog.Int("packet_length", len(packet)))
@@ -80,6 +81,11 @@ func (s *Server) processRequest(ctx context.Context, logger *slog.Logger, sessio
 	if err == nil {
 		logger.DebugContext(ctx, "wrote bytes to connection",
 			slog.Int("bytes_written", bytesWritten))
+	}
+	if bytesWritten != len(packet) {
+		logger.ErrorContext(ctx, "failed to write full packet to connection")
+		return fmt.Errorf("write response: wrote %d of %d bytes: %w",
+			bytesWritten, len(packet), io.ErrShortWrite)
 	}
 	return nil
 }
