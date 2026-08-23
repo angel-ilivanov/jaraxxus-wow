@@ -21,6 +21,10 @@ type LogonProofRequest struct {
 	ClientProof     []byte
 }
 
+func (l LogonProofRequest) Opcode() Opcode {
+	return CmdAuthLogonProof
+}
+
 func (l LogonProofRequest) isRequest() {}
 
 func DecodeLogonProofRequest(reader io.Reader) (LogonProofRequest, error) {

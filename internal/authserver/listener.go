@@ -121,6 +121,12 @@ func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol
 		logger.InfoContext(ctx, "created logon challenge response",
 			slog.Int("result", int(response.Result)))
 	case protocol.LogonProofResponse:
+		if response.Result == protocol.ResultIncorrectPassword {
+			logger.WarnContext(ctx, "logon proof rejected",
+				slog.Int("result", int(response.Result)),
+				slog.String("reason", "invalid_client_proof"))
+			return
+		}
 		logger.InfoContext(ctx, "created logon proof response",
 			slog.Int("result", int(response.Result)))
 	case protocol.RealmListResponse:

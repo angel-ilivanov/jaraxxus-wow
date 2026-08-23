@@ -12,6 +12,10 @@ type LogonChallengeResponse struct {
 	Salt            []byte
 }
 
+func (l LogonChallengeResponse) Opcode() Opcode {
+	return CmdAuthLogonChallenge
+}
+
 func (l LogonChallengeResponse) isResponse() {}
 
 var crcSalt = make([]byte, 16)

@@ -9,6 +9,10 @@ type LogonProofResponse struct {
 	ServerProof []byte
 }
 
+func (l LogonProofResponse) Opcode() Opcode {
+	return CmdAuthLogonProof
+}
+
 func (l LogonProofResponse) isResponse() {}
 
 // 4 bytes if unsuccessful

@@ -23,9 +23,9 @@ func main() {
 	}
 	defer pool.Close()
 
-	handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
+	//handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
 	//remove comment for debug messages
-	//handler := slog.NewTextHandler(os.Stdout, nil)
+	handler := slog.NewTextHandler(os.Stdout, nil)
 	slog.SetDefault(slog.New(handler))
 
 	accountStore := accountstore.New(pool)

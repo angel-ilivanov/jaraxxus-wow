@@ -44,7 +44,6 @@ func isValidClientProof(session *AuthSession, request protocol.LogonProofRequest
 		session.identity.salt)
 
 	if subtle.ConstantTimeCompare(request.ClientProof, expectedClientProof) == 0 {
-		fmt.Println("invalid client proof")
 		return false
 	}
 	return true

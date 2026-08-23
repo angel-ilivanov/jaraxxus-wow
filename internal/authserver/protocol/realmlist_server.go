@@ -26,6 +26,10 @@ type RealmListResponse struct {
 	WorldServerAddress string
 }
 
+func (r RealmListResponse) Opcode() Opcode {
+	return CmdRealmList
+}
+
 func (r RealmListResponse) isResponse() {}
 
 func EncodeRealmListResponse(response RealmListResponse) []byte {
