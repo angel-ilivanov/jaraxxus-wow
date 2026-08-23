@@ -16,7 +16,7 @@ func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *Au
 	validProof := isValidClientProof(session, request, sessionKey)
 	if !validProof {
 		session.resetForLogon()
-		response := protocol.LogonProofResponse{Result: protocol.ResultIncorrectPassword, ServerProof: nil}
+		response := protocol.LogonProofResponse{Result: protocol.ResultUnknownAccount, ServerProof: nil}
 		return response, nil
 	}
 
