@@ -37,8 +37,9 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	session := &AuthSession{}
 	logger := slog.With(
 		slog.String("component", "authserver"),
-		slog.String("remote_addr", conn.RemoteAddr().String()),
-		slog.String("local_addr", conn.LocalAddr().String()))
+		//slog.String("remote_addr", conn.RemoteAddr().String()),
+		//slog.String("local_addr", conn.LocalAddr().String())
+	)
 
 	slog.InfoContext(ctx, "connection received")
 
