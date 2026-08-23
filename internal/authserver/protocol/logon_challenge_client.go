@@ -50,14 +50,12 @@ func readLogonChallengePacket(reader io.Reader) ([]byte, error) {
 		return nil, err
 	}
 	header = append([]byte{0x00}, header...) // prepend opcode
-	fmt.Println("header:", header)
 	size := binary.LittleEndian.Uint16(header[2:4])
 	body := make([]byte, size)
 	_, err = io.ReadFull(reader, body)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("body:", body)
 	return append(header, body...), nil
 }
 
@@ -68,14 +66,12 @@ func decodeLogonChallengeWire(packetBytes []byte) (logonChallengeWire, error) {
 	if err != nil {
 		return logonChallengeWire{}, err
 	}
-	fmt.Println("Account name length:", parsed.AccountNameLength)
 	return parsed, nil
 }
 
 func decodeAccountName(parsedPacket logonChallengeWire, packetBytes []byte) string {
 	nameLength := int(parsedPacket.AccountNameLength)
 	nameBytes := packetBytes[len(packetBytes)-nameLength:]
-	fmt.Println("Account name:", string(nameBytes))
 	return string(nameBytes)
 }
 

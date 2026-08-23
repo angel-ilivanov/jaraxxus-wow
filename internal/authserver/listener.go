@@ -34,12 +34,13 @@ func (s *Server) Start(ctx context.Context, port string) error {
 
 func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	defer conn.Close()
-	slog.InfoContext(ctx, "connection received")
 	session := &AuthSession{}
 	logger := slog.With(
 		slog.String("component", "authserver"),
 		slog.String("remote_addr", conn.RemoteAddr().String()),
 		slog.String("local_addr", conn.LocalAddr().String()))
+
+	slog.InfoContext(ctx, "connection received")
 
 	for {
 		request, err := protocol.DecodeRequest(conn)
@@ -47,6 +48,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			logDecodeError(ctx, logger, err)
 			return
 		}
+		logRequestInfo(ctx, logger, request)
 		response, err := s.requestHandler.HandleRequest(ctx, session, request)
 		if err != nil {
 			logger.ErrorContext(
@@ -55,15 +57,16 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 				slog.Any("err", err))
 			return
 		}
+		logResponseInfo(ctx, logger, response)
 		packet, err := protocol.EncodeResponse(response)
 		if err != nil {
 			logger.WarnContext(ctx, "failed to encode unknown response", "err", err)
 		}
-		logger.Info("encoded response packet",
+		logger.DebugContext(ctx, "encoded response packet",
 			slog.Int("packet_length", len(packet)))
 		bytesWritten, err := conn.Write(packet)
 		if err == nil {
-			logger.Info("wrote bytes to connection",
+			logger.DebugContext(ctx, "wrote bytes to connection",
 				slog.Int("bytes_written", bytesWritten))
 		}
 	}
@@ -77,5 +80,31 @@ func logDecodeError(ctx context.Context, logger *slog.Logger, err error) {
 		logger.WarnContext(ctx, "received unknown opcode", "err", err)
 	default:
 		logger.ErrorContext(ctx, "failed to decode client request", "err", err)
+	}
+}
+
+func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.Request) {
+	switch request.(type) {
+	case protocol.LogonChallengeRequest:
+		logger.InfoContext(ctx, "received logon challenge request",
+			slog.String("username", request.(protocol.LogonChallengeRequest).AccountName))
+	case protocol.LogonProofRequest:
+		logger.InfoContext(ctx, "received logon proof request")
+	case protocol.RealmListRequest:
+		logger.InfoContext(ctx, "received realmlist request")
+	}
+}
+
+func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.Response) {
+	switch response.(type) {
+	case protocol.LogonChallengeResponse:
+		logger.InfoContext(ctx, "created logon challenge response",
+			slog.Int("result", int(response.(protocol.LogonChallengeResponse).Result)))
+	case protocol.LogonProofResponse:
+		logger.InfoContext(ctx, "created logon proof response",
+			slog.Int("result", int(response.(protocol.LogonProofResponse).Result)))
+	case protocol.RealmListResponse:
+		logger.InfoContext(ctx, "created realmlist response",
+			slog.Int("num_chars", int(response.(protocol.RealmListResponse).NumChars)))
 	}
 }
