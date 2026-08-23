@@ -95,10 +95,11 @@ func logDecodeError(ctx context.Context, logger *slog.Logger, err error) {
 }
 
 func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.Request) {
-	switch request.(type) {
+	logger = logger.With(slog.String("msg_type", "request"))
+	switch request := request.(type) {
 	case protocol.LogonChallengeRequest:
 		logger.InfoContext(ctx, "received logon challenge request",
-			slog.String("username", request.(protocol.LogonChallengeRequest).AccountName))
+			slog.String("username", request.AccountName))
 	case protocol.LogonProofRequest:
 		logger.InfoContext(ctx, "received logon proof request")
 	case protocol.RealmListRequest:
@@ -107,15 +108,16 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.R
 }
 
 func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.Response) {
-	switch response.(type) {
+	logger = logger.With(slog.String("msg_type", "response"))
+	switch response := response.(type) {
 	case protocol.LogonChallengeResponse:
 		logger.InfoContext(ctx, "created logon challenge response",
-			slog.Int("result", int(response.(protocol.LogonChallengeResponse).Result)))
+			slog.Int("result", int(response.Result)))
 	case protocol.LogonProofResponse:
 		logger.InfoContext(ctx, "created logon proof response",
-			slog.Int("result", int(response.(protocol.LogonProofResponse).Result)))
+			slog.Int("result", int(response.Result)))
 	case protocol.RealmListResponse:
 		logger.InfoContext(ctx, "created realmlist response",
-			slog.Int("num_chars", int(response.(protocol.RealmListResponse).NumChars)))
+			slog.Int("num_chars", int(response.NumChars)))
 	}
 }
