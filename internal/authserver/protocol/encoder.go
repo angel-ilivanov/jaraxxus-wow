@@ -1,6 +1,11 @@
 package protocol
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrUnknownResponseType = errors.New("unknown response type")
 
 func EncodeResponse(response Response) ([]byte, error) {
 	switch response.(type) {
@@ -11,6 +16,6 @@ func EncodeResponse(response Response) ([]byte, error) {
 	case RealmListResponse:
 		return EncodeRealmListResponse(response.(RealmListResponse)), nil
 	default:
-		return nil, fmt.Errorf("unknown response type")
+		return nil, fmt.Errorf("%w: %T", ErrUnknownResponseType, response)
 	}
 }

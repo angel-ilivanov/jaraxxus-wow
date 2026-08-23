@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
@@ -22,7 +23,16 @@ func main() {
 	}
 	defer pool.Close()
 
+	handler := slog.NewTextHandler(os.Stdout, nil)
+	slog.SetDefault(slog.New(handler))
+
 	accountStore := accountstore.New(pool)
 	server := authserver.New(accountStore)
-	server.Start(ctx, ":3724")
+	err = server.Start(ctx, ":3724")
+	if err != nil {
+		slog.Error("auth server stopped",
+			slog.Any("err", err),
+		)
+		os.Exit(1)
+	}
 }
