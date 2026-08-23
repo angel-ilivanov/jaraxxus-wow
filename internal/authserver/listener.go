@@ -102,7 +102,9 @@ func logDecodeError(ctx context.Context, logger *slog.Logger, err error) {
 }
 
 func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.Request) {
-	logger = logger.With(slog.String("msg_type", "request"))
+	logger = logger.With(
+		slog.String("msg_type", "request"),
+		slog.Int("opcode", int(request.Opcode())))
 	switch request := request.(type) {
 	case protocol.LogonChallengeRequest:
 		logger.InfoContext(ctx, "received logon challenge request",
@@ -115,7 +117,8 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.R
 }
 
 func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.Response) {
-	logger = logger.With(slog.String("msg_type", "response"))
+	logger = logger.With(slog.String("msg_type", "response"),
+		slog.Int("opcode", int(response.Opcode())))
 	switch response := response.(type) {
 	case protocol.LogonChallengeResponse:
 		logger.InfoContext(ctx, "created logon challenge response",
