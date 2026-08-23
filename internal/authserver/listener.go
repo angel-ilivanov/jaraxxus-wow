@@ -78,15 +78,16 @@ func (s *Server) processRequest(ctx context.Context, logger *slog.Logger, sessio
 		slog.Int("packet_length", len(packet)))
 
 	bytesWritten, err := conn.Write(packet)
-	if err == nil {
-		logger.DebugContext(ctx, "wrote bytes to connection",
-			slog.Int("bytes_written", bytesWritten))
+	if err != nil {
+		return fmt.Errorf("write response: %w", err)
 	}
 	if bytesWritten != len(packet) {
 		logger.ErrorContext(ctx, "failed to write full packet to connection")
 		return fmt.Errorf("write response: wrote %d of %d bytes: %w",
 			bytesWritten, len(packet), io.ErrShortWrite)
 	}
+	logger.DebugContext(ctx, "wrote bytes to connection",
+		slog.Int("bytes_written", bytesWritten))
 	return nil
 }
 
