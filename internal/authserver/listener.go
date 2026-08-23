@@ -43,33 +43,44 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	slog.InfoContext(ctx, "connection received")
 
 	for {
-		request, err := protocol.DecodeRequest(conn)
+		err := s.processRequest(ctx, logger, session, conn)
 		if err != nil {
-			logDecodeError(ctx, logger, err)
 			return
-		}
-		logRequestInfo(ctx, logger, request)
-		response, err := s.requestHandler.HandleRequest(ctx, session, request)
-		if err != nil {
-			logger.ErrorContext(
-				ctx,
-				"failed to handle client request",
-				slog.Any("err", err))
-			return
-		}
-		logResponseInfo(ctx, logger, response)
-		packet, err := protocol.EncodeResponse(response)
-		if err != nil {
-			logger.WarnContext(ctx, "failed to encode unknown response", "err", err)
-		}
-		logger.DebugContext(ctx, "encoded response packet",
-			slog.Int("packet_length", len(packet)))
-		bytesWritten, err := conn.Write(packet)
-		if err == nil {
-			logger.DebugContext(ctx, "wrote bytes to connection",
-				slog.Int("bytes_written", bytesWritten))
 		}
 	}
+}
+
+func (s *Server) processRequest(ctx context.Context, logger *slog.Logger, session *AuthSession, conn net.Conn) error {
+	request, err := protocol.DecodeRequest(conn)
+	if err != nil {
+		logDecodeError(ctx, logger, err)
+		return fmt.Errorf("failed to decode request")
+	}
+	logRequestInfo(ctx, logger, request)
+
+	response, err := s.requestHandler.HandleRequest(ctx, session, request)
+	if err != nil {
+		logger.ErrorContext(
+			ctx,
+			"failed to handle client request",
+			slog.Any("err", err))
+		return fmt.Errorf("failed to handle client request")
+	}
+	logResponseInfo(ctx, logger, response)
+
+	packet, err := protocol.EncodeResponse(response)
+	if err != nil {
+		logger.WarnContext(ctx, "failed to encode unknown response", "err", err)
+	}
+	logger.DebugContext(ctx, "encoded response packet",
+		slog.Int("packet_length", len(packet)))
+
+	bytesWritten, err := conn.Write(packet)
+	if err == nil {
+		logger.DebugContext(ctx, "wrote bytes to connection",
+			slog.Int("bytes_written", bytesWritten))
+	}
+	return nil
 }
 
 func logDecodeError(ctx context.Context, logger *slog.Logger, err error) {
