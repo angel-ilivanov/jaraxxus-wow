@@ -7,37 +7,44 @@ import (
 )
 
 var (
-	encryptKey = []byte{
+	serverToClientSeed = []byte{
 		0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0xEA, 0xCA, 0x12, 0xDD, 0xC0, 0x93, 0x42, 0x91, 0x53, 0x57,
 	}
-	decryptKey = []byte{
+	clientToServerSeed = []byte{
 		0xC2, 0xB3, 0x72, 0x3C, 0xC6, 0xAE, 0xD9, 0xB5, 0x34, 0x3C, 0x53, 0xEE, 0x2F, 0x43, 0x67, 0xCE,
 	}
 )
 
 type HeaderEncryption struct {
-	encryptCipher *rc4.Cipher
-	decryptCipher *rc4.Cipher
+	sendCipher    *rc4.Cipher
+	receiveCipher *rc4.Cipher
 }
 
 func (header *HeaderEncryption) Init(sessionKey []byte) error {
-	return header.initKeys(sessionKey, decryptKey, encryptKey)
+	return header.initKeys(sessionKey, clientToServerSeed, serverToClientSeed)
 }
 
-func (header *HeaderEncryption) initKeys(sessionKey, decryptKey, encryptKey []byte) error {
-	decryptCipher, err := rc4.NewCipher(createTrafficKey(sessionKey, decryptKey))
+func (header *HeaderEncryption) initKeys(sessionKey, receiveSeed, sendSeed []byte) error {
+	sendStream, err := newStream(sessionKey, sendSeed)
 	if err != nil {
 		return err
 	}
-	header.decryptCipher = decryptCipher
-	discardBytes(header.decryptCipher)
-	encryptCipher, err := rc4.NewCipher(createTrafficKey(sessionKey, encryptKey))
+	receiveStream, err := newStream(sessionKey, receiveSeed)
 	if err != nil {
 		return err
 	}
-	header.encryptCipher = encryptCipher
-	discardBytes(header.encryptCipher)
+	header.sendCipher = sendStream
+	header.receiveCipher = receiveStream
 	return nil
+}
+
+func newStream(sessionKey, key []byte) (*rc4.Cipher, error) {
+	stream, err := rc4.NewCipher(createTrafficKey(sessionKey, key))
+	if err != nil {
+		return nil, err
+	}
+	discardBytes(stream)
+	return stream, nil
 }
 
 func createTrafficKey(sessionKey, key []byte) []byte {
@@ -46,8 +53,7 @@ func createTrafficKey(sessionKey, key []byte) []byte {
 	return hash.Sum(nil)
 }
 
-// discardBytes advances the stream by 1024 positions. Done for protection against keystream attack.
-// Client does this as well.
+// discardBytes discards the first 1024 RC4 keystream bytes as required by Wrath.
 func discardBytes(stream *rc4.Cipher) {
 	discard := make([]byte, 1024)
 	stream.XORKeyStream(discard, discard)
