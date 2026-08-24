@@ -15,7 +15,7 @@ func (s *Server) Start(ctx context.Context, port string) error {
 	defer listener.Close()
 	slog.InfoContext(ctx, "listening for TCP connections")
 	for {
-		_, err := listener.Accept()
+		conn, err := listener.Accept()
 		if err != nil {
 			slog.ErrorContext(
 				ctx,
@@ -24,6 +24,7 @@ func (s *Server) Start(ctx context.Context, port string) error {
 				slog.Any("err", err))
 			continue
 		}
+		go s.handleConnection(ctx, conn)
 	}
 }
 
