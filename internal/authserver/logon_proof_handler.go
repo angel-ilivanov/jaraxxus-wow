@@ -16,7 +16,7 @@ func (handler *RequestHandler) handleLogonProof(ctx context.Context, session *Au
 	validProof := isValidClientProof(session, request, sessionKey)
 	if !validProof {
 		session.resetForLogon()
-		response := protocol.LogonProofResponse{Result: protocol.ResultIncorrectPassword, ServerProof: nil}
+		response := protocol.LogonProofResponse{Result: protocol.ResultUnknownAccount, ServerProof: nil}
 		return response, nil
 	}
 
@@ -44,7 +44,6 @@ func isValidClientProof(session *AuthSession, request protocol.LogonProofRequest
 		session.identity.salt)
 
 	if subtle.ConstantTimeCompare(request.ClientProof, expectedClientProof) == 0 {
-		fmt.Println("invalid client proof")
 		return false
 	}
 	return true

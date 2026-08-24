@@ -2,7 +2,6 @@ package protocol
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/srp6"
 )
@@ -11,6 +10,10 @@ type LogonChallengeResponse struct {
 	Result          LoginResult
 	ServerPublicKey []byte
 	Salt            []byte
+}
+
+func (l LogonChallengeResponse) Opcode() Opcode {
+	return CmdAuthLogonChallenge
 }
 
 func (l LogonChallengeResponse) isResponse() {}
@@ -26,7 +29,6 @@ func EncodeLogonChallengeResponse(response LogonChallengeResponse) []byte {
 	buf.WriteByte(byte(response.Result))
 
 	if response.Result != ResultSuccess {
-		fmt.Println("Server Packet:", buf.Bytes())
 		return buf.Bytes()
 	}
 
@@ -40,6 +42,5 @@ func EncodeLogonChallengeResponse(response LogonChallengeResponse) []byte {
 	buf.Write(crcSalt)
 	// Additional Verification required (PIN, 2FA)
 	buf.WriteByte(0x00)
-	fmt.Println("Server Packet:", buf.Bytes())
 	return buf.Bytes()
 }

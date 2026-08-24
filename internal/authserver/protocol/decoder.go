@@ -1,19 +1,21 @@
 package protocol
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
 
 // Read opcode and choose appropriate Packet decoder
 
+var ErrUnknownOpcode = errors.New("unknown opcode")
+
 func DecodeRequest(reader io.Reader) (Request, error) {
 	opcode := make([]byte, 1)
 	_, err := io.ReadFull(reader, opcode)
 	if err != nil {
-		return nil, fmt.Errorf("error reading opcode %v", err)
+		return nil, fmt.Errorf("error reading opcode %w", err)
 	}
-	fmt.Println("opcode:", opcode)
 	switch opcode[0] {
 	case byte(CmdAuthLogonChallenge):
 		return DecodeLogonChallengeRequest(reader)
@@ -22,7 +24,6 @@ func DecodeRequest(reader io.Reader) (Request, error) {
 	case byte(CmdRealmList):
 		return DecodeRealmListRequest(reader)
 	default:
-		fmt.Println("received unknown opcode:", opcode[0])
-		return nil, fmt.Errorf("unknown opcode")
+		return nil, fmt.Errorf("%w: 0x%02X", ErrUnknownOpcode, opcode[0])
 	}
 }

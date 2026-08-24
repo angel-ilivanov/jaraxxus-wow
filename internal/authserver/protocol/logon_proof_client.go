@@ -21,6 +21,10 @@ type LogonProofRequest struct {
 	ClientProof     []byte
 }
 
+func (l LogonProofRequest) Opcode() Opcode {
+	return CmdAuthLogonProof
+}
+
 func (l LogonProofRequest) isRequest() {}
 
 func DecodeLogonProofRequest(reader io.Reader) (LogonProofRequest, error) {
@@ -42,8 +46,6 @@ func readLogonProofPacket(reader io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("error reading logon proof packet: %w", err)
 	}
 	packet = append([]byte{byte(CmdAuthLogonProof)}, packet...) //prepend opcode
-	fmt.Println("Client Proof Packet:", packet)
-	fmt.Println("size:", len(packet))
 	return packet, nil
 }
 
@@ -54,9 +56,6 @@ func decodeLogonProofWire(packetBytes []byte) (logonProofWire, error) {
 	if err != nil {
 		return logonProofWire{}, fmt.Errorf("error decoding packet bytes into wire object: %w", err)
 	}
-	fmt.Println("client public key:", parsed.ClientPublicKey)
-	fmt.Println("client proof:", parsed.ClientProof)
-	fmt.Println("2fa enabled:", parsed.SecurityFlags)
 	return parsed, nil
 }
 
