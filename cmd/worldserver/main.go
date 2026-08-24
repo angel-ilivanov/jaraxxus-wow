@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/angel-ilivanov/jaraxxus-wow/internal/authserver"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/bootstrap"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/worldserver"
 )
 
 func main() {
@@ -24,10 +24,10 @@ func main() {
 		os.Exit(1)
 	}
 	defer resources.Close()
-	server := authserver.New(resources.Accounts)
-	err = server.Start(ctx, ":3724")
+	server := worldserver.New(resources.Accounts)
+	err = server.Start(ctx, ":8085")
 	if err != nil {
-		slog.Error("auth server stopped",
+		slog.Error("world server stopped",
 			slog.Any("err", err),
 		)
 		os.Exit(1)
