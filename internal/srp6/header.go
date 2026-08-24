@@ -4,6 +4,7 @@ import (
 	hmac2 "crypto/hmac"
 	"crypto/rc4"
 	"crypto/sha1"
+	"errors"
 )
 
 var (
@@ -20,11 +21,30 @@ type HeaderEncryption struct {
 	receiveCipher *rc4.Cipher
 }
 
-func (header *HeaderEncryption) Init(sessionKey []byte) error {
-	return header.initKeys(sessionKey, clientToServerSeed, serverToClientSeed)
+var ErrUninitializedCipher = errors.New("rc4 cipher cannot be used before initialization")
+
+// EncryptHeader encrypts header in place
+func (h *HeaderEncryption) EncryptHeader(header []byte) error {
+	if h.sendCipher == nil {
+		return ErrUninitializedCipher
+	}
+	h.sendCipher.XORKeyStream(header, header)
+	return nil
 }
 
-func (header *HeaderEncryption) initKeys(sessionKey, receiveSeed, sendSeed []byte) error {
+func (h *HeaderEncryption) DecryptHeader(header []byte) error {
+	if h.receiveCipher == nil {
+		return ErrUninitializedCipher
+	}
+	h.receiveCipher.XORKeyStream(header, header)
+	return nil
+}
+
+func (h *HeaderEncryption) Init(sessionKey []byte) error {
+	return h.initKeys(sessionKey, clientToServerSeed, serverToClientSeed)
+}
+
+func (h *HeaderEncryption) initKeys(sessionKey, receiveSeed, sendSeed []byte) error {
 	sendStream, err := newStream(sessionKey, sendSeed)
 	if err != nil {
 		return err
@@ -33,8 +53,8 @@ func (header *HeaderEncryption) initKeys(sessionKey, receiveSeed, sendSeed []byt
 	if err != nil {
 		return err
 	}
-	header.sendCipher = sendStream
-	header.receiveCipher = receiveStream
+	h.sendCipher = sendStream
+	h.receiveCipher = receiveStream
 	return nil
 }
 
