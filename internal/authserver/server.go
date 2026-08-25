@@ -8,6 +8,6 @@ type Server struct {
 	requestHandler *RequestHandler
 }
 
-func New(store *accountstore.Store) *Server {
-	return &Server{requestHandler: NewRequestHandler(store)}
+func New(accountStore *accountstore.Store) *Server {
+	return &Server{requestHandler: NewRequestHandler(accountStore)}
 }
