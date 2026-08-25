@@ -29,18 +29,26 @@ func (s *Server) Start(ctx context.Context, port string) error {
 }
 
 func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
+	defer conn.Close()
 	logger := slog.With(
 		slog.String("component", "worldserver"))
 	logger.InfoContext(ctx, "received world server connection")
-
 	userSession := &session{}
-	response := handleAuthChallenge(userSession)
-	bytesWritten, err := conn.Write(response.Encode())
+
+	authChallengeMessage := handleAuthChallenge(userSession)
+	bytesWritten, err := conn.Write(authChallengeMessage.Encode())
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to write response")
 		return
 	}
 	logger.InfoContext(ctx, "wrote bytes to connection",
 		slog.Int("bytes_written", bytesWritten))
-	conn.Close()
+	for {
+		_, err = DecodeRequest(conn)
+		if err != nil {
+			slog.InfoContext(ctx, "failed to decode request", slog.Any("err", err))
+			return
+		}
+		//response...
+	}
 }
