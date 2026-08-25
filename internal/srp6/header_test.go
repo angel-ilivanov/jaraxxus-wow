@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// Test Inputs taken from https://gtker.com/implementation-guide-for-the-world-of-warcraft-flavor-of-srp6/
+
 func TestEncryptHeader(t *testing.T) {
 	sessionKey := []byte{
 		0xde, 0xe8, 0xa4, 0x4c, 0xdb, 0xa7, 0xba, 0xec,
