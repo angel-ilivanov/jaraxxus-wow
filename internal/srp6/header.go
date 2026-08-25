@@ -7,7 +7,7 @@ import (
 	"errors"
 )
 
-// Adapted from Kangaroux/go-wow-srp6-header, wrath.go:
+// Adapted from Kangaroux/go-wow-srp6/header, wrath.go:
 // https://github.com/Kangaroux/go-wow-srp6/blob/master/header/wrath.go
 
 var (
