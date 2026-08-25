@@ -32,5 +32,15 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	logger := slog.With(
 		slog.String("component", "worldserver"))
 	logger.InfoContext(ctx, "received world server connection")
+
+	userSession := &session{}
+	response := handleAuthChallenge(userSession)
+	bytesWritten, err := conn.Write(response.Encode())
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to write response")
+		return
+	}
+	logger.InfoContext(ctx, "wrote bytes to connection",
+		slog.Int("bytes_written", bytesWritten))
 	conn.Close()
 }
