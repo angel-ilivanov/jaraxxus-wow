@@ -17,8 +17,8 @@ func (a AuthChallengeServerMessage) Encode() []byte {
 	var buf bytes.Buffer
 	buf.Write(size)
 
-	opcode := make([]byte, 2)
-	binary.LittleEndian.AppendUint16(opcode, uint16(OpcodeAuthChallenge))
+	var opcode []byte
+	opcode = binary.LittleEndian.AppendUint16(opcode, uint16(OpcodeAuthChallenge))
 	buf.Write(opcode)
 	buf.Write(a.ServerSeed)
 	return buf.Bytes()
