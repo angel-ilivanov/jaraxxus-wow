@@ -35,6 +35,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	logger.InfoContext(ctx, "received world server connection")
 	userSession := &session{}
 
+	// SMS_AUTH_CHALLENGE kicks off client-worldServer communication
 	authChallengeMessage := handleAuthChallenge(userSession)
 	bytesWritten, err := conn.Write(authChallengeMessage.Encode())
 	if err != nil {

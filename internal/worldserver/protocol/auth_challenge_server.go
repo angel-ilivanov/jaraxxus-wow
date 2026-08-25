@@ -7,7 +7,7 @@ import (
 
 const bodySize uint16 = 42
 
-var dosChallenge = make([]byte, 32)
+var dosChallenge = make([]byte, 32) // unused DoS challenge information, treat as padding
 
 type AuthChallengeServerMessage struct {
 	ServerSeed []byte
@@ -26,7 +26,7 @@ func (a AuthChallengeServerMessage) Encode() []byte {
 	buf.Write(opcode)
 
 	// Body:
-	var dosDifficulty []byte
+	var dosDifficulty []byte // unused, typically hardcoded to 1
 	dosDifficulty = binary.LittleEndian.AppendUint32(dosDifficulty, 1)
 	buf.Write(dosDifficulty)
 
