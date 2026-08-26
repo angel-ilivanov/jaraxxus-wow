@@ -81,7 +81,7 @@ func decodeAuthSessionRequest(packetBytes []byte) (AuthSessionRequest, error) {
 }
 
 func readUsername(reader io.ByteReader) (string, error) {
-	username := make([]byte, MaxUsernameLength+1)
+	username := make([]byte, 0, MaxUsernameLength+1)
 	currentByte, err := reader.ReadByte()
 	if err != nil {
 		return "", fmt.Errorf("error reading byte: %w", err)
