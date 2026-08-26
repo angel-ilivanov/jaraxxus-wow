@@ -53,7 +53,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			return
 		}
 		logRequestInfo(ctx, logger, request)
-		response, err := HandleRequest(ctx, userSession, request)
+		response, err := s.requestHandler.HandleRequest(ctx, userSession, request)
 		if err != nil {
 			slog.ErrorContext(ctx, "failed to handle request", slog.Any("err", err))
 			return
