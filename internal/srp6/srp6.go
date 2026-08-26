@@ -41,11 +41,11 @@ func GenerateSalt() []byte {
 
 func CalculateWorldServerProof(username string, clientSeed, serverSeed, sessionKey []byte) []byte {
 	hash := sha1.New()
-	sha1.Sum([]byte(strings.ToUpper(username)))
-	sha1.Sum(make([]byte, 4))
-	sha1.Sum(clientSeed)
-	sha1.Sum(serverSeed)
-	sha1.Sum(sessionKey)
+	hash.Write([]byte(strings.ToUpper(username)))
+	hash.Write(make([]byte, 4))
+	hash.Write(clientSeed)
+	hash.Write(serverSeed)
+	hash.Write(sessionKey)
 	return hash.Sum(nil)
 }
 
