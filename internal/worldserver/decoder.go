@@ -22,7 +22,7 @@ func DecodeRequest(reader io.Reader) (protocol.ClientMessage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error reading size from client packet: %w", err)
 	}
-	size := binary.LittleEndian.Uint16(sizeBuffer)
+	size := binary.BigEndian.Uint16(sizeBuffer)
 	opcodeBuffer := make([]byte, clientOpcodeBytesCount)
 	_, err = io.ReadFull(reader, opcodeBuffer)
 	if err != nil {
