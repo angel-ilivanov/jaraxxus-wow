@@ -5,9 +5,9 @@ import (
 )
 
 type Server struct {
-	store *accountstore.Store
+	requestHandler *RequestHandler
 }
 
 func New(store *accountstore.Store) *Server {
-	return &Server{store: store}
+	return &Server{requestHandler: NewRequestHandler(store)}
 }

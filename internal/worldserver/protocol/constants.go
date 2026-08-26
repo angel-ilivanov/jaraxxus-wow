@@ -22,4 +22,5 @@ type AccountResultValue uint32
 
 const (
 	ResultSuccess AccountResultValue = 0x00
+	ResultFailure AccountResultValue = 0x01
 )

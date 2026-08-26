@@ -1,7 +1,7 @@
 package protocol
 
 type AuthResponse struct {
-	resultCode AccountResultValue
+	ResultCode AccountResultValue
 }
 
 func (a AuthResponse) Encode() []byte {

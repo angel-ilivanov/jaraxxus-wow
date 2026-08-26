@@ -4,16 +4,25 @@ import (
 	"context"
 	"errors"
 
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/worldserver/protocol"
 )
 
 var ErrUnknownRequestType = errors.New("unknown request type")
 
-func HandleRequest(ctx context.Context, session *session, request protocol.ClientMessage) (protocol.ServerMessage, error) {
+type RequestHandler struct {
+	store *accountstore.Store
+}
+
+func (handler RequestHandler) HandleRequest(ctx context.Context, session *session, request protocol.ClientMessage) (protocol.ServerMessage, error) {
 	switch request := request.(type) {
 	case protocol.AuthSessionRequest:
-		return handleAuthSession(ctx, session, request)
+		return handler.handleAuthSession(ctx, session, request)
 	default:
 		return nil, ErrUnknownRequestType
 	}
+}
+
+func NewRequestHandler(store *accountstore.Store) *RequestHandler {
+	return &RequestHandler{store: store}
 }
