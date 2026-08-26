@@ -17,3 +17,9 @@ const (
 	ClientOpcodeLength = 4
 	ServerOpcodeLength = 2
 )
+
+type AccountResultValue uint32
+
+const (
+	ResultSuccess AccountResultValue = 0x00
+)

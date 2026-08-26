@@ -53,7 +53,16 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			return
 		}
 		logRequestInfo(ctx, logger, request)
-		//response...
+		response, err := HandleRequest(ctx, userSession, request)
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to handle request", slog.Any("err", err))
+			return
+		}
+		_, err = conn.Write(response.Encode())
+		if err != nil {
+			slog.ErrorContext(ctx, "failed to write bytes", slog.Any("err", err))
+			return
+		}
 	}
 }
 

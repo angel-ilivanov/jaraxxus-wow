@@ -1,6 +1,6 @@
 package protocol
 
-type serverMessage interface {
+type ServerMessage interface {
 	Encode() []byte
 }
 
