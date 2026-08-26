@@ -19,11 +19,11 @@ func (handler RequestHandler) handleAuthSession(ctx context.Context, session *se
 		return protocol.AuthResponse{}, fmt.Errorf("error updating session: %w", err)
 	}
 
-	if isValidClientProof(session, request, sessionKey) {
-		return protocol.AuthResponse{ResultCode: protocol.ResultFailure}, nil
+	if !isValidClientProof(session, request, sessionKey) {
+		return protocol.AuthResponse{ResultCode: protocol.ResultAuthReject}, nil
 	}
 
-	return protocol.AuthResponse{ResultCode: protocol.ResultSuccess}, nil
+	return protocol.AuthResponse{ResultCode: protocol.ResultAuthOk}, nil
 }
 
 func updateSession(session *session, request protocol.AuthSessionRequest, sessionKey []byte) error {

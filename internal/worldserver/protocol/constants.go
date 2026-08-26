@@ -22,6 +22,6 @@ const (
 type AccountResultValue uint32
 
 const (
-	ResultSuccess AccountResultValue = 0x00
-	ResultFailure AccountResultValue = 0x01
+	ResultAuthOk     AccountResultValue = 0x0C
+	ResultAuthReject AccountResultValue = 0x0E
 )

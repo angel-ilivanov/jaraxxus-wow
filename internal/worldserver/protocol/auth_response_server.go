@@ -17,7 +17,7 @@ func (a AuthResponse) Encode() []byte {
 	sizeBytes = binary.BigEndian.AppendUint16(sizeBytes, size)
 	header.Write(sizeBytes)
 
-	opcodeBytes := make([]byte, 0, 2)
+	opcodeBytes := make([]byte, 0, ServerOpcodeLength)
 	opcodeBytes = binary.LittleEndian.AppendUint16(opcodeBytes, uint16(OpcodeAuthResponse))
 	header.Write(opcodeBytes)
 
