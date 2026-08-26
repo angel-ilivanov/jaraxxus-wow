@@ -4,6 +4,7 @@ type ServerOpcode uint16
 
 const (
 	OpcodeAuthChallenge ServerOpcode = 0x1EC
+	OpcodeAuthResponse  ServerOpcode = 0x1EE
 )
 
 type ClientOpcode uint32
