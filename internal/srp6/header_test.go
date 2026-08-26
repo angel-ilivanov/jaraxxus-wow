@@ -33,7 +33,7 @@ func TestEncryptHeader(t *testing.T) {
 		0xf7, 0x66, 0x72, 0xcf, 0xe2, 0x86, 0x17, 0x68,
 		0x2d, 0x46,
 	}
-	encryption := HeaderEncryption{}
+	encryption := HeaderCipher{}
 	err := encryption.Init(sessionKey)
 	if err != nil {
 		t.Fatalf("failed to initialize encryption ciphers: %v", err)
@@ -74,7 +74,7 @@ func TestDecryptHeader(t *testing.T) {
 		0xba, 0xde,
 	}
 
-	encryption := HeaderEncryption{}
+	encryption := HeaderCipher{}
 	err := encryption.Init(sessionKey)
 	if err != nil {
 		t.Fatalf("failed to initialize encryption ciphers: %v", err)
