@@ -16,12 +16,13 @@ const (
 
 var ErrUnknownOpcode = errors.New("received unknown opcode")
 
-func DecodeRequest(reader io.Reader) (ClientMessage, error) {
+func DecodeRequest(reader io.Reader) (protocol.ClientMessage, error) {
 	sizeBuffer := make([]byte, clientPacketSizeBytesCount)
 	_, err := io.ReadFull(reader, sizeBuffer)
 	if err != nil {
 		return nil, fmt.Errorf("error reading size from client packet: %w", err)
 	}
+	size := binary.LittleEndian.Uint16(sizeBuffer)
 	opcodeBuffer := make([]byte, clientOpcodeBytesCount)
 	_, err = io.ReadFull(reader, opcodeBuffer)
 	if err != nil {
@@ -30,7 +31,7 @@ func DecodeRequest(reader io.Reader) (ClientMessage, error) {
 	opcode := binary.LittleEndian.Uint32(opcodeBuffer)
 	switch opcode {
 	case uint32(protocol.OpcodeAuthSession):
-		return nil, fmt.Errorf("parsing client proof request not implemented")
+		return protocol.DecodeAuthSession(size, reader)
 	default:
 		return nil, ErrUnknownOpcode
 	}
