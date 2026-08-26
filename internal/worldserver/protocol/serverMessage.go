@@ -6,4 +6,5 @@ type serverMessage interface {
 
 type ClientMessage interface {
 	isClientMessage()
+	Opcode() ClientOpcode
 }

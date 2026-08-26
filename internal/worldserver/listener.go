@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/worldserver/protocol"
 )
 
 func (s *Server) Start(ctx context.Context, port string) error {
@@ -42,14 +44,26 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		logger.ErrorContext(ctx, "failed to write response")
 		return
 	}
-	logger.InfoContext(ctx, "wrote bytes to connection",
+	logger.DebugContext(ctx, "wrote bytes to connection",
 		slog.Int("bytes_written", bytesWritten))
 	for {
-		_, err = DecodeRequest(conn)
+		request, err := DecodeRequest(conn)
 		if err != nil {
-			slog.InfoContext(ctx, "failed to decode request", slog.Any("err", err))
+			slog.ErrorContext(ctx, "failed to decode request", slog.Any("err", err))
 			return
 		}
+		logRequestInfo(ctx, logger, request)
 		//response...
+	}
+}
+
+func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.ClientMessage) {
+	logger = logger.With(
+		slog.String("msg_type", "request"),
+		slog.Int("opcode", int(request.Opcode())))
+	switch request := request.(type) {
+	case protocol.AuthSessionRequest:
+		logger.InfoContext(ctx, "received AuthSessionRequest",
+			slog.String("username", request.Username))
 	}
 }

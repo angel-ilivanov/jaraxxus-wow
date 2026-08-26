@@ -24,20 +24,23 @@ type authSessionWire2 struct {
 }
 
 type AuthSessionRequest struct {
-	username    string
-	clientSeed  []byte
-	clientProof []byte
+	Username    string
+	ClientSeed  []byte
+	ClientProof []byte
 }
 
 func (a AuthSessionRequest) isClientMessage() {}
 
+func (a AuthSessionRequest) Opcode() ClientOpcode {
+	return OpcodeAuthSession
+}
+
 func DecodeAuthSession(size uint16, reader io.Reader) (AuthSessionRequest, error) {
-	packet, err := readAuthSessionPacket(size, reader)
+	packetBody, err := readAuthSessionPacket(size, reader)
 	if err != nil {
 		return AuthSessionRequest{}, err
 	}
-	fmt.Println(packet)
-	request, err := decodeAuthSessionRequest(packet)
+	request, err := decodeAuthSessionRequest(packetBody)
 	if err != nil {
 		return AuthSessionRequest{}, fmt.Errorf("error decoding authSessionRequest: %w", err)
 	}
@@ -54,6 +57,7 @@ func readAuthSessionPacket(size uint16, reader io.Reader) ([]byte, error) {
 }
 
 func decodeAuthSessionRequest(packetBytes []byte) (AuthSessionRequest, error) {
+	// Read static length part before username
 	var wire1 authSessionWire1
 	reader := bytes.NewReader(packetBytes)
 	err := binary.Read(reader, binary.LittleEndian, &wire1)
@@ -61,22 +65,31 @@ func decodeAuthSessionRequest(packetBytes []byte) (AuthSessionRequest, error) {
 		fmt.Println(err)
 		return AuthSessionRequest{}, fmt.Errorf("error reading wire1: %w", err)
 	}
-	name, err := readUsername(reader)
+
+	username, err := readUsername(reader)
 	if err != nil {
 		return AuthSessionRequest{}, fmt.Errorf("error reading username: %w", err)
 	}
+
+	// Read static length part after username
 	var wire2 authSessionWire2
 	err = binary.Read(reader, binary.LittleEndian, &wire2)
 	if err != nil {
 		return AuthSessionRequest{}, fmt.Errorf("error reading wire2: %w", err)
 	}
 
-	//read rest of bytes to complete packet
+	// Read rest of bytes to complete packet
+	compressedAddonInfoLength := len(packetBytes) - 60 - len(username)
+	compressedAddonInfo := make([]byte, compressedAddonInfoLength)
+	_, err = io.ReadFull(reader, compressedAddonInfo)
+	if err != nil {
+		return AuthSessionRequest{}, fmt.Errorf("error reading compressedAddonInfo: %w", err)
+	}
 
 	return AuthSessionRequest{
-		username:    name,
-		clientSeed:  wire2.ClientSeed[:],
-		clientProof: wire2.ClientProof[:],
+		Username:    username,
+		ClientSeed:  wire2.ClientSeed[:],
+		ClientProof: wire2.ClientProof[:],
 	}, nil
 }
 
