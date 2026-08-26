@@ -79,7 +79,7 @@ func decodeAuthSessionRequest(packetBytes []byte) (AuthSessionRequest, error) {
 	}
 
 	// Read rest of bytes to complete packet
-	compressedAddonInfoLength := len(packetBytes) - 60 - len(username)
+	compressedAddonInfoLength := len(packetBytes) - 60 - (len(username) + 1)
 	compressedAddonInfo := make([]byte, compressedAddonInfoLength)
 	_, err = io.ReadFull(reader, compressedAddonInfo)
 	if err != nil {
@@ -106,6 +106,5 @@ func readUsername(reader io.ByteReader) (string, error) {
 			return "", fmt.Errorf("error reading byte: %w", err)
 		}
 	}
-	username = append(username, 0x00)
 	return string(username), nil
 }

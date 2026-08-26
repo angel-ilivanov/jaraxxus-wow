@@ -23,12 +23,14 @@ func DecodeRequest(reader io.Reader) (protocol.ClientMessage, error) {
 		return nil, fmt.Errorf("error reading size from client packet: %w", err)
 	}
 	size := binary.BigEndian.Uint16(sizeBuffer)
+
 	opcodeBuffer := make([]byte, clientOpcodeBytesCount)
 	_, err = io.ReadFull(reader, opcodeBuffer)
 	if err != nil {
 		return nil, fmt.Errorf("error reading opcode from client packet: %w", err)
 	}
 	opcode := binary.LittleEndian.Uint32(opcodeBuffer)
+
 	switch opcode {
 	case uint32(protocol.OpcodeAuthSession):
 		return protocol.DecodeAuthSession(size, reader)

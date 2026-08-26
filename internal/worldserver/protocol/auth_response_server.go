@@ -26,6 +26,6 @@ func (a AuthResponse) Encode() []byte {
 	resultBytes = binary.LittleEndian.AppendUint32(resultBytes, uint32(a.ResultCode))
 	body.Write(resultBytes)
 
-	//encrypt header, return encrypted header | body
+	//TODO: encrypt header, return (encrypted header | body)
 	return nil
 }

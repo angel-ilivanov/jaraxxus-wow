@@ -126,13 +126,14 @@ func (s *Store) SetSessionKey(
 }
 
 func (s *Store) FetchSessionKey(ctx context.Context, username string) ([]byte, error) {
-	commandTag, err := s.db.Exec(
+	var sessionKey []byte
+	err := s.db.QueryRow(
 		ctx,
 		`SELECT session_key FROM public.account WHERE username = @username`,
 		pgx.StrictNamedArgs{
 			"username": username,
 		},
-	)
+	).Scan(&sessionKey)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("find session key for account: %w", ErrNotFound)
@@ -141,5 +142,5 @@ func (s *Store) FetchSessionKey(ctx context.Context, username string) ([]byte, e
 		return nil, fmt.Errorf("find session key for account: %w", err)
 	}
 
-	return []byte(commandTag.String()), nil
+	return sessionKey, nil
 }
