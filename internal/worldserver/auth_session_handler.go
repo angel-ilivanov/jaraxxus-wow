@@ -14,13 +14,14 @@ func (handler RequestHandler) handleAuthSession(ctx context.Context, session *se
 	if err != nil {
 		return protocol.AuthResponse{}, fmt.Errorf("error fetching sessionKey: %w", err)
 	}
-	err = updateSession(session, request, sessionKey)
-	if err != nil {
-		return protocol.AuthResponse{}, fmt.Errorf("error updating session: %w", err)
-	}
 
 	if !isValidClientProof(session, request, sessionKey) {
 		return protocol.AuthResponse{ResultCode: protocol.ResultAuthReject}, nil
+	}
+
+	err = updateSession(session, request, sessionKey)
+	if err != nil {
+		return protocol.AuthResponse{}, fmt.Errorf("error updating session: %w", err)
 	}
 
 	return protocol.AuthResponse{ResultCode: protocol.ResultAuthOk}, nil
