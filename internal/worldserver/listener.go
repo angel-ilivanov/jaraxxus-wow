@@ -36,16 +36,17 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		slog.String("component", "worldserver"))
 	logger.InfoContext(ctx, "received world server connection")
 	userSession := &session{}
+	worldConnection := NewWorldConnection(conn)
 
 	// SMS_AUTH_CHALLENGE kicks off client-worldServer communication
 	authChallengeMessage := handleAuthChallenge(userSession)
-	bytesWritten, err := conn.Write(authChallengeMessage.Encode())
+	err := worldConnection.WriteMessage(authChallengeMessage)
 	if err != nil {
-		logger.ErrorContext(ctx, "failed to write response")
+		logger.ErrorContext(ctx, "failed to write response",
+			slog.Any("err", err))
 		return
 	}
-	logger.DebugContext(ctx, "wrote bytes to connection",
-		slog.Int("bytes_written", bytesWritten))
+	logResponseInfo(ctx, logger, authChallengeMessage)
 	for {
 		request, err := DecodeRequest(conn)
 		if err != nil {
@@ -58,11 +59,12 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			slog.ErrorContext(ctx, "failed to handle request", slog.Any("err", err))
 			return
 		}
-		_, err = conn.Write(response.Encode())
+		err = worldConnection.WriteMessage(response)
 		if err != nil {
 			slog.ErrorContext(ctx, "failed to write bytes", slog.Any("err", err))
 			return
 		}
+		logResponseInfo(ctx, logger, response)
 	}
 }
 
@@ -72,7 +74,19 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.C
 		slog.Int("opcode", int(request.Opcode())))
 	switch request := request.(type) {
 	case protocol.AuthSessionRequest:
-		logger.InfoContext(ctx, "received AuthSessionRequest",
+		logger.InfoContext(ctx, "received CMSG_AUTH_SESSION packet",
 			slog.String("username", request.Username))
+	}
+}
+func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.ServerMessage) {
+	logger = logger.With(
+		slog.String("msg_type", "response"),
+		slog.Int("opcode", int(response.Opcode())))
+	switch response := response.(type) {
+	case protocol.AuthChallengeServerMessage:
+		logger.InfoContext(ctx, "sent SMSG_AUTH_CHALLENGE packet, containing server proof")
+	case protocol.AuthResponse:
+		logger.InfoContext(ctx, "sent SMSG_AUTH_RESPONSE packet",
+			slog.Any("result", response.ResultCode))
 	}
 }

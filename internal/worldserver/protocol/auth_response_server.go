@@ -5,22 +5,16 @@ import (
 	"encoding/binary"
 )
 
-const size = 6
-
 type AuthResponse struct {
 	ResultCode AccountResultValue
 }
 
-func (a AuthResponse) Encode() []byte {
+func (a AuthResponse) Opcode() ServerOpcode {
+	return OpcodeAuthResponse
+}
+
+func (a AuthResponse) EncodeBody() []byte {
 	var packet bytes.Buffer
-
-	sizeBytes := make([]byte, 0, 2)
-	sizeBytes = binary.BigEndian.AppendUint16(sizeBytes, size)
-	packet.Write(sizeBytes)
-
-	opcodeBytes := make([]byte, 0, ServerOpcodeLength)
-	opcodeBytes = binary.LittleEndian.AppendUint16(opcodeBytes, uint16(OpcodeAuthResponse))
-	packet.Write(opcodeBytes)
 
 	resultBytes := make([]byte, 0, 4)
 	resultBytes = binary.LittleEndian.AppendUint32(resultBytes, uint32(a.ResultCode))
