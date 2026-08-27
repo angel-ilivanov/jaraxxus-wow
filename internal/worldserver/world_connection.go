@@ -47,6 +47,13 @@ func (c *WorldConnection) WriteMessage(message protocol.ServerMessage) error {
 	return nil
 }
 
+func (c *WorldConnection) ReadMessage() (protocol.ClientMessage, error) {
+	// 1. decode header if encryption is enabled
+	// 2. send to decoder
+	// TODO: IMPLEMENT THIS
+	panic("implement me")
+}
+
 func constructHeader(opcode protocol.ServerOpcode, bodyLength int) ([]byte, error) {
 	size := bodyLength + protocol.ServerOpcodeLength
 

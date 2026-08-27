@@ -11,6 +11,7 @@ type ClientOpcode uint32
 
 const (
 	OpcodeAuthSession ClientOpcode = 0x1ED
+	OpcodeCharEnum    ClientOpcode = 0x037
 )
 
 const (
