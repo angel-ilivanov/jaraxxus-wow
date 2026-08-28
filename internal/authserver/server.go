@@ -1,6 +1,8 @@
 package authserver
 
-import "github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
+import (
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
+)
 
 type Server struct {
 	requestHandler *RequestHandler
