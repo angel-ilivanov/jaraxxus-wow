@@ -12,7 +12,7 @@ type AuthChallengeServerMessage struct {
 }
 
 func (a AuthChallengeServerMessage) Opcode() ServerOpcode {
-	return OpcodeAuthChallenge
+	return ServerOpcodeAuthChallenge
 }
 
 func (a AuthChallengeServerMessage) EncodeBody() []byte {

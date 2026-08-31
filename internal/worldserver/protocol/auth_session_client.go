@@ -32,7 +32,7 @@ type AuthSessionRequest struct {
 func (a AuthSessionRequest) isClientMessage() {}
 
 func (a AuthSessionRequest) Opcode() ClientOpcode {
-	return OpcodeAuthSession
+	return ClientOpcodeAuthSession
 }
 
 func DecodeAuthSession(size uint16, reader io.Reader) (AuthSessionRequest, error) {

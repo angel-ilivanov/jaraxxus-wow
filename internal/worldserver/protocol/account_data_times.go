@@ -13,7 +13,7 @@ func (a AccountDataTimesRequest) isClientMessage() {
 }
 
 func (a AccountDataTimesRequest) Opcode() ClientOpcode {
-	return OpcodeAccountTimesReady
+	return ClientOpcodeAccountTimesReady
 }
 
 type AccountDataTimesResponse struct{}
@@ -39,5 +39,5 @@ func (a AccountDataTimesResponse) EncodeBody() []byte {
 }
 
 func (a AccountDataTimesResponse) Opcode() ServerOpcode {
-	return OpcodeAccountTimes
+	return ServerOpcodeAccountTimes
 }

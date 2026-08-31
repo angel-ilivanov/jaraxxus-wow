@@ -20,7 +20,8 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 		return handler.handleAuthSession(ctx, session, request)
 	case protocol.AccountDataTimesRequest:
 		return protocol.AccountDataTimesResponse{}, nil
-
+	case protocol.CharEnumRequest:
+		return handler.handleCharEnum(ctx, session, request)
 	default:
 		return nil, ErrUnknownRequestType
 	}

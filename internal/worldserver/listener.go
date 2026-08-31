@@ -75,7 +75,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	for {
 		err = worldConnection.WriteMessage(response)
 		if err != nil {
-			logger.ErrorContext(ctx, "failed to write SMSG_AUTH_PROOF response packet",
+			logger.ErrorContext(ctx, "failed to write response packet",
 				slog.Any("err", err))
 			return
 		}
@@ -88,7 +88,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		logRequestInfo(ctx, logger, request)
 		response, err = s.requestHandler.HandleRequest(ctx, userSession, request)
 		if err != nil {
-			logger.ErrorContext(ctx, "failed to handle CMSG_AUTH_SESSION",
+			logger.ErrorContext(ctx, "failed to handle request",
 				slog.Any("err", err))
 			return
 		}

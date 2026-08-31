@@ -13,7 +13,7 @@ var billingPadding = make([]byte, 9)
 const expansionCode uint8 = 2
 
 func (a AuthResponse) Opcode() ServerOpcode {
-	return OpcodeAuthResponse
+	return ServerOpcodeAuthResponse
 }
 
 func (a AuthResponse) EncodeBody() []byte {
