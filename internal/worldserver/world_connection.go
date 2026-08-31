@@ -1,8 +1,11 @@
 package worldserver
 
 import (
+	"bytes"
+	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/srp6"
@@ -51,7 +54,50 @@ func (c *WorldConnection) ReadMessage() (protocol.ClientMessage, error) {
 	// 1. decode header if encryption is enabled
 	// 2. send to decoder
 	// TODO: IMPLEMENT THIS
-	panic("implement me")
+
+	header := make([]byte, 6)
+	_, err := io.ReadFull(c.connection, header)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.headerCipher != nil {
+		err = c.headerCipher.DecryptHeader(header)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	parsedHeader := parseHeader(header)
+	body, err := readBody(parsedHeader, c.connection)
+	if err != nil {
+		return nil, fmt.Errorf("error reading packet body: %w", err)
+	}
+
+	return protocol.DecodeRequest(parsedHeader, bytes.NewReader(body))
+}
+
+func parseHeader(headerBytes []byte) protocol.ClientHeader {
+	sizeBuffer := headerBytes[:2]
+	size := binary.BigEndian.Uint16(sizeBuffer)
+
+	opcodeBuffer := headerBytes[2:]
+	opcode := binary.LittleEndian.Uint32(opcodeBuffer)
+
+	return protocol.ClientHeader{
+		PacketSize: size,
+		Opcode:     protocol.ClientOpcode(opcode),
+	}
+}
+
+func readBody(header protocol.ClientHeader, reader io.Reader) ([]byte, error) {
+	bodySize := header.PacketSize - 4
+	body := make([]byte, bodySize)
+	_, err := io.ReadFull(reader, body)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func constructHeader(opcode protocol.ServerOpcode, bodyLength int) ([]byte, error) {

@@ -49,7 +49,7 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 	logResponseInfo(ctx, logger, challengeMessage)
 
 	// CMSG_AUTH_SESSION
-	request, err := protocol.DecodeRequest(conn)
+	request, err := worldConnection.ReadMessage()
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to decode CMSG_AUTH_SESSION request",
 			slog.Any("err", err))
@@ -77,15 +77,12 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			slog.Any("err", err))
 		return
 	}
-	_, err = protocol.DecodeRequest(conn)
+	_, err = worldConnection.ReadMessage()
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to decode request packet",
 			slog.Any("err", err))
+		return
 	}
-	for {
-
-	}
-
 }
 
 func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.ClientMessage) {
