@@ -9,7 +9,7 @@ type AuthResponse struct {
 	ResultCode AccountResultValue
 }
 
-var billingPadding = make([]byte, 19)
+var billingPadding = make([]byte, 9)
 
 const expansionCode uint8 = 2
 
