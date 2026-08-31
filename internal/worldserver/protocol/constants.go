@@ -20,7 +20,7 @@ const (
 	ServerOpcodeLength = 2
 )
 
-type AccountResultValue uint32
+type AccountResultValue uint8
 
 const (
 	ResultAuthOk     AccountResultValue = 0x0C
