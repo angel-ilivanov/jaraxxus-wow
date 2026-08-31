@@ -71,17 +71,28 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 			slog.Any("err", err))
 		return
 	}
-	err = worldConnection.WriteMessage(response)
-	if err != nil {
-		logger.ErrorContext(ctx, "failed to write SMSG_AUTH_PROOF response packet",
-			slog.Any("err", err))
-		return
-	}
-	_, err = worldConnection.ReadMessage()
-	if err != nil {
-		logger.ErrorContext(ctx, "failed to decode request packet",
-			slog.Any("err", err))
-		return
+
+	for {
+		err = worldConnection.WriteMessage(response)
+		if err != nil {
+			logger.ErrorContext(ctx, "failed to write SMSG_AUTH_PROOF response packet",
+				slog.Any("err", err))
+			return
+		}
+		request, err = worldConnection.ReadMessage()
+		if err != nil {
+			logger.ErrorContext(ctx, "failed to decode request packet",
+				slog.Any("err", err))
+			return
+		}
+		logRequestInfo(ctx, logger, request)
+		response, err = s.requestHandler.HandleRequest(ctx, userSession, request)
+		if err != nil {
+			logger.ErrorContext(ctx, "failed to handle CMSG_AUTH_SESSION",
+				slog.Any("err", err))
+			return
+		}
+		logResponseInfo(ctx, logger, response)
 	}
 }
 

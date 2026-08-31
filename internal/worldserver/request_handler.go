@@ -18,6 +18,9 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 	switch request := request.(type) {
 	case protocol.AuthSessionRequest:
 		return handler.handleAuthSession(ctx, session, request)
+	case protocol.AccountDataTimesRequest:
+		return protocol.AccountDataTimesResponse{}, nil
+
 	default:
 		return nil, ErrUnknownRequestType
 	}

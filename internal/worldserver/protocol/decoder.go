@@ -12,6 +12,8 @@ func DecodeRequest(header ClientHeader, reader io.Reader) (ClientMessage, error)
 	switch header.Opcode {
 	case OpcodeAuthSession:
 		return DecodeAuthSession(header.PacketSize, reader)
+	case OpcodeAccountTimesReady:
+		return AccountDataTimesRequest{}, nil
 	case OpcodeCharEnum:
 		return nil, fmt.Errorf("OpcodeCharEnum not yet implemented")
 	default:
