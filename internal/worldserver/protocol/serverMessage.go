@@ -1,4 +1,4 @@
-package worldserver
+package protocol
 
 type serverMessage interface {
 	Encode() []byte
@@ -6,4 +6,5 @@ type serverMessage interface {
 
 type ClientMessage interface {
 	isClientMessage()
+	Opcode() ClientOpcode
 }

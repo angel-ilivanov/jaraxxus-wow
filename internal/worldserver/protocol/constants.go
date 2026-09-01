@@ -11,3 +11,9 @@ type ClientOpcode uint32
 const (
 	OpcodeAuthSession ClientOpcode = 0x1ED
 )
+
+const (
+	MaxUsernameLength  = 16
+	ClientOpcodeLength = 4
+	ServerOpcodeLength = 2
+)
