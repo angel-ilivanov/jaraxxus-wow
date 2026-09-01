@@ -51,10 +51,6 @@ func (c *WorldConnection) WriteMessage(message protocol.ServerMessage) error {
 }
 
 func (c *WorldConnection) ReadMessage() (protocol.ClientMessage, error) {
-	// 1. decode header if encryption is enabled
-	// 2. send to decoder
-	// TODO: IMPLEMENT THIS
-
 	header := make([]byte, 6)
 	_, err := io.ReadFull(c.connection, header)
 	if err != nil {
