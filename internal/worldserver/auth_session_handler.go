@@ -5,21 +5,22 @@ import (
 	"crypto/subtle"
 	"fmt"
 
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/srp6"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/worldserver/protocol"
 )
 
 func (handler RequestHandler) handleAuthSession(ctx context.Context, session *session, request protocol.AuthSessionRequest) (protocol.AuthResponse, error) {
-	sessionKey, err := handler.accountStore.FetchSessionKey(ctx, request.Username)
+	worldAuth, err := handler.accountStore.FindForWorldAuthentication(ctx, request.Username)
 	if err != nil {
 		return protocol.AuthResponse{}, fmt.Errorf("error fetching sessionKey: %w", err)
 	}
 
-	if !isValidClientProof(session, request, sessionKey) {
+	if !isValidClientProof(session, request, worldAuth.SessionKey) {
 		return protocol.AuthResponse{ResultCode: protocol.ResultAuthReject}, nil
 	}
 
-	err = updateSession(session, request, sessionKey)
+	err = updateSession(session, request, worldAuth)
 	if err != nil {
 		return protocol.AuthResponse{}, fmt.Errorf("error updating session: %w", err)
 	}
@@ -27,11 +28,12 @@ func (handler RequestHandler) handleAuthSession(ctx context.Context, session *se
 	return protocol.AuthResponse{ResultCode: protocol.ResultAuthOk}, nil
 }
 
-func updateSession(session *session, request protocol.AuthSessionRequest, sessionKey []byte) error {
+func updateSession(session *session, request protocol.AuthSessionRequest, worldAuth accountstore.WorldAuthentication) error {
 	session.clientSeed = request.ClientSeed
 	session.Username = request.Username
 
-	session.SessionKey = sessionKey
+	session.SessionKey = worldAuth.SessionKey
+	session.AccountId = worldAuth.ID
 	return nil
 }
 
