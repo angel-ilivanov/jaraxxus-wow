@@ -10,7 +10,7 @@ import (
 )
 
 func (handler RequestHandler) handleAuthSession(ctx context.Context, session *session, request protocol.AuthSessionRequest) (protocol.AuthResponse, error) {
-	sessionKey, err := handler.store.FetchSessionKey(ctx, request.Username)
+	sessionKey, err := handler.accountStore.FetchSessionKey(ctx, request.Username)
 	if err != nil {
 		return protocol.AuthResponse{}, fmt.Errorf("error fetching sessionKey: %w", err)
 	}
