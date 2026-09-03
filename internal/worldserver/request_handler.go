@@ -22,6 +22,9 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 		return protocol.AccountDataTimesResponse{}, nil
 	case protocol.CharEnumRequest:
 		return handler.handleCharEnum(ctx, session, request)
+	case protocol.CharCreateRequest:
+		return handler.handleCharCreate(ctx, session, request)
+		//return nil, fmt.Errorf("handling char creation not yet implemented")
 	default:
 		return nil, ErrUnknownRequestType
 	}

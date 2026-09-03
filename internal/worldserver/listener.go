@@ -129,6 +129,16 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.C
 	case protocol.AuthSessionRequest:
 		logger.InfoContext(ctx, "received CMSG_AUTH_SESSION packet",
 			slog.String("username", request.Username))
+	case protocol.CharCreateRequest:
+		logger.InfoContext(ctx, "received CMSG_CHAR_CREATE packet",
+			slog.String("character_name", request.Name),
+			slog.Any("gender", request.Gender),
+			slog.Any("race", request.Race),
+			slog.Any("class", request.Class))
+	case protocol.CharEnumRequest:
+		logger.InfoContext(ctx, "received CMSG_CHAR_ENUM packet")
+	case protocol.AccountDataTimesRequest:
+		logger.InfoContext(ctx, "received CSMG_ACCOUNT_DATA_READY packet")
 	}
 }
 func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.ServerMessage) {
@@ -137,11 +147,16 @@ func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol
 		slog.Int("opcode", int(response.Opcode())))
 	switch response := response.(type) {
 	case protocol.AuthChallengeServerMessage:
-		logger.InfoContext(ctx, "sent SMSG_AUTH_CHALLENGE packet, containing server proof",
+		logger.InfoContext(ctx, "assembled SMSG_AUTH_CHALLENGE packet, containing server proof",
 			slog.Bool("encryption_enabled", false))
 	case protocol.AuthResponse:
-		logger.InfoContext(ctx, "sent SMSG_AUTH_RESPONSE packet",
+		logger.InfoContext(ctx, "assembled SMSG_AUTH_RESPONSE packet",
 			slog.Any("result", response.ResultCode),
 			slog.Bool("encryption_enabled", true))
+	case protocol.CharCreateResponse:
+		logger.InfoContext(ctx, "assembled SMSG_CHAR_CREATE packet",
+			slog.Any("result", response.Result))
+	case protocol.AccountDataTimesResponse:
+		logger.InfoContext(ctx, "assembled SMSG_ACCOUNT_DATA_TIMES packet")
 	}
 }

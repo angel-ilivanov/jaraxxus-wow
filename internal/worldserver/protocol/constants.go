@@ -28,7 +28,8 @@ const (
 type AccountResultValue uint8
 
 const (
-	ResultAuthOk            AccountResultValue = 0x0C
-	ResultAuthReject        AccountResultValue = 0x0E
-	ResultCharCreateSuccess AccountResultValue = 0x2E
+	ResultAuthOk              AccountResultValue = 0x0C
+	ResultAuthReject          AccountResultValue = 0x0E
+	ResultCharCreateSuccess   AccountResultValue = 0x2F
+	ResultCharCreateNameInUse AccountResultValue = 0x32
 )
