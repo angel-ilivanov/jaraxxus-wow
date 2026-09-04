@@ -29,7 +29,7 @@ func (handler RequestHandler) handlePlayerLogin(ctx context.Context, session *se
 		PositionZ:   spawnPoint.PositionZ,
 		Orientation: spawnPoint.Orientation,
 	}
-	return []protocol.ServerMessage{verifyWorldResponse, protocol.TutorialFlagsResponse{}}, nil
+	return []protocol.ServerMessage{verifyWorldResponse, protocol.TutorialFlagsResponse{}, protocol.UpdateObjectResponse{}}, nil
 }
 
 func (handler RequestHandler) characterBelongsToAccount(ctx context.Context, session *session, request protocol.PlayerLoginRequest) (bool, error) {
