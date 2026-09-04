@@ -139,6 +139,9 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.C
 		logger.InfoContext(ctx, "received CMSG_CHAR_ENUM packet")
 	case protocol.AccountDataTimesRequest:
 		logger.InfoContext(ctx, "received CSMG_ACCOUNT_DATA_READY packet")
+	case protocol.PlayerLoginRequest:
+		logger.InfoContext(ctx, "received CSMG_PLAYER_LOGIN packet",
+			slog.Int("character_guid", int(request.CharGUID)))
 	}
 }
 func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.ServerMessage) {
@@ -158,5 +161,14 @@ func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol
 			slog.Any("result", response.Result))
 	case protocol.AccountDataTimesResponse:
 		logger.InfoContext(ctx, "assembled SMSG_ACCOUNT_DATA_TIMES packet")
+	case protocol.LoginFailedResponse:
+		logger.InfoContext(ctx, "assembled SMSG_CHARACTER_LOGIN_FAILED",
+			slog.Any("result", response.Result))
+	case protocol.LoginVerifyWorldResponse:
+		logger.InfoContext(ctx, "assembled SMSG_CHARACTER_LOGIN_FAILED",
+			slog.Int("map_id", int(response.MapID)),
+			slog.Float64("positionX", float64(response.PositionX)),
+			slog.Float64("positionY", float64(response.PositionY)),
+			slog.Float64("positionZ", float64(response.PositionZ)))
 	}
 }
