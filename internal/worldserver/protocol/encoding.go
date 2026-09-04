@@ -17,3 +17,9 @@ func writeUint32LE(buf *bytes.Buffer, value uint32) {
 	binary.LittleEndian.AppendUint32(data, value)
 	buf.Write(data)
 }
+
+func writeUint64LE(buf *bytes.Buffer, value uint64) {
+	data := make([]byte, 0, 8)
+	binary.LittleEndian.AppendUint64(data, value)
+	buf.Write(data)
+}
