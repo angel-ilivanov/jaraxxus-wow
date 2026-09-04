@@ -3,10 +3,11 @@ package protocol
 import "bytes"
 
 type LoginVerifyWorldResponse struct {
-	MapID     uint32
-	PositionX float32
-	PositionY float32
-	PositionZ float32
+	MapID       uint32
+	PositionX   float32
+	PositionY   float32
+	PositionZ   float32
+	Orientation float32
 }
 
 func (l LoginVerifyWorldResponse) EncodeBody() []byte {
