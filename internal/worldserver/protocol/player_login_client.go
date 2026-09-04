@@ -7,7 +7,7 @@ import (
 )
 
 type PlayerLoginRequest struct {
-	charGUID uint64
+	CharGUID uint64
 }
 
 func (p PlayerLoginRequest) isClientMessage() {}
