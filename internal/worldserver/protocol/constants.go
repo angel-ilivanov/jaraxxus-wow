@@ -3,11 +3,13 @@ package protocol
 type ServerOpcode uint16
 
 const (
-	ServerOpcodeAuthChallenge ServerOpcode = 0x1EC
-	ServerOpcodeAuthResponse  ServerOpcode = 0x1EE
-	ServerOpcodeAccountTimes  ServerOpcode = 0x209
-	ServerOpcodeCharEnum      ServerOpcode = 0x03B
-	ServerOpcodeCharCreate    ServerOpcode = 0x03A
+	ServerOpcodeAuthChallenge    ServerOpcode = 0x1EC
+	ServerOpcodeAuthResponse     ServerOpcode = 0x1EE
+	ServerOpcodeAccountTimes     ServerOpcode = 0x209
+	ServerOpcodeCharEnum         ServerOpcode = 0x03B
+	ServerOpcodeCharCreate       ServerOpcode = 0x03A
+	ServerOpcodeCharLoginFailed  ServerOpcode = 0x03C
+	ServerOpcodeLoginVerifyWorld ServerOpcode = 0x0236
 )
 
 type ClientOpcode uint32
@@ -33,4 +35,5 @@ const (
 	ResultAuthReject          AccountResultValue = 0x0E
 	ResultCharCreateSuccess   AccountResultValue = 0x2F
 	ResultCharCreateNameInUse AccountResultValue = 0x32
+	ResultCharLoginFailed     AccountResultValue = 0x42
 )

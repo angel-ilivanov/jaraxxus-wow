@@ -3,7 +3,6 @@ package protocol
 import (
 	"bytes"
 	"encoding/binary"
-	"math"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/characterstore"
 )
@@ -80,12 +79,6 @@ func encodeCharacter(character characterstore.Character) []byte {
 	buf.Write(make([]byte, 23*9)) //gear slots, hardcoded to empty
 
 	return buf.Bytes()
-}
-
-func writeFloat32LE(buf *bytes.Buffer, value float32) {
-	var data [4]byte
-	binary.LittleEndian.PutUint32(data[:], math.Float32bits(value))
-	buf.Write(data[:])
 }
 
 func (c CharEnumResponse) Opcode() ServerOpcode {
