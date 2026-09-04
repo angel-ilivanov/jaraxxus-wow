@@ -18,6 +18,8 @@ func DecodeRequest(header ClientHeader, reader io.Reader) (ClientMessage, error)
 		return CharEnumRequest{}, nil
 	case ClientOpcodeCharCreate:
 		return DecodeCharCreate(header.PacketSize, reader)
+	case ClientOpcodePlayerLogin:
+		return DecodePlayerLogin(reader)
 	default:
 		return nil, fmt.Errorf("%w: 0x%02X", ErrUnknownOpcode, header.Opcode)
 	}
