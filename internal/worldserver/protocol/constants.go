@@ -10,6 +10,7 @@ const (
 	ServerOpcodeCharCreate       ServerOpcode = 0x03A
 	ServerOpcodeCharLoginFailed  ServerOpcode = 0x03C
 	ServerOpcodeLoginVerifyWorld ServerOpcode = 0x0236
+	ServerOpcodeTutorialFlags    ServerOpcode = 0x00FD
 )
 
 type ClientOpcode uint32
