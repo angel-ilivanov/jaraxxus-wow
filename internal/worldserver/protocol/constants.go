@@ -17,6 +17,7 @@ const (
 	ClientOpcodeCharEnum          ClientOpcode = 0x037
 	ClientOpcodeAccountTimesReady ClientOpcode = 0x4FF
 	ClientOpcodeCharCreate        ClientOpcode = 0x0036
+	ClientOpcodePlayerLogin       ClientOpcode = 0x003D
 )
 
 const (

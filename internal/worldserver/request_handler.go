@@ -3,6 +3,7 @@ package worldserver
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/characterstore"
@@ -26,7 +27,8 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 		return handler.handleCharEnum(ctx, session, request)
 	case protocol.CharCreateRequest:
 		return handler.handleCharCreate(ctx, session, request)
-		//return nil, fmt.Errorf("handling char creation not yet implemented")
+	case protocol.PlayerLoginRequest:
+		return nil, fmt.Errorf("handling player login request not implemented yet")
 	default:
 		return nil, ErrUnknownRequestType
 	}
