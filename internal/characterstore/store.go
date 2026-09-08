@@ -27,7 +27,7 @@ func newStore(db database) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) Insert(ctx context.Context, accountId int64, character NewCharacter) (uint32, error) {
+func (s *Store) Insert(ctx context.Context, accountId int64, character Character) (uint32, error) {
 	var guid uint32
 	err := s.db.QueryRow(ctx,
 		`INSERT INTO
@@ -46,13 +46,13 @@ func (s *Store) Insert(ctx context.Context, accountId int64, character NewCharac
 			"hair_style":   character.Appearance.HairStyle,
 			"hair_color":   character.Appearance.HairColor,
 			"facial_style": character.Appearance.FacialStyle,
-			"level":        character.GeneratedState.Level,
-			"map_id":       character.GeneratedState.MapID,
-			"zone_id":      character.GeneratedState.ZoneID,
-			"position_x":   character.GeneratedState.PositionX,
-			"position_y":   character.GeneratedState.PositionY,
-			"position_z":   character.GeneratedState.PositionZ,
-			"orientation":  character.GeneratedState.Orientation}).Scan(&guid)
+			"level":        character.State.Level,
+			"map_id":       character.State.MapID,
+			"zone_id":      character.State.ZoneID,
+			"position_x":   character.State.PositionX,
+			"position_y":   character.State.PositionY,
+			"position_z":   character.State.PositionZ,
+			"orientation":  character.State.Orientation}).Scan(&guid)
 	if err != nil {
 		return 0, fmt.Errorf("insert character: %w", err)
 	}

@@ -7,15 +7,7 @@ type Character struct {
 	Class      Class
 	Gender     Gender
 	Appearance Appearance
-	State      InitialState
-}
-type NewCharacter struct {
-	Name           string
-	Race           Race
-	Class          Class
-	Gender         Gender
-	Appearance     Appearance
-	GeneratedState InitialState
+	State      State
 }
 
 type Appearance struct {
@@ -26,7 +18,7 @@ type Appearance struct {
 	FacialStyle uint8
 }
 
-type InitialState struct {
+type State struct {
 	Level       uint8
 	MapID       uint32
 	ZoneID      uint32

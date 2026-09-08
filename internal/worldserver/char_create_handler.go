@@ -18,8 +18,8 @@ func (handler RequestHandler) handleCharCreate(ctx context.Context, session *ses
 	return protocol.CharCreateResponse{Result: protocol.ResultCharCreateSuccess}, nil
 }
 
-func generateCharacterFromRequest(request protocol.CharCreateRequest) characterstore.NewCharacter {
-	return characterstore.NewCharacter{
+func generateCharacterFromRequest(request protocol.CharCreateRequest) characterstore.Character {
+	return characterstore.Character{
 		Name:   request.Name,
 		Race:   characterstore.Race(request.Race),
 		Class:  characterstore.Class(request.Class),
@@ -32,7 +32,7 @@ func generateCharacterFromRequest(request protocol.CharCreateRequest) characters
 			FacialStyle: request.FacialStyle,
 		},
 		//TODO FIX PLACEHOLDER VALUES:
-		GeneratedState: characterstore.InitialState{
+		State: characterstore.State{
 			Level:       1,
 			MapID:       0,
 			ZoneID:      0,
