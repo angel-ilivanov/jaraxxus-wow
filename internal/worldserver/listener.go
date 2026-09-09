@@ -58,19 +58,20 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		}
 		logRequestInfo(ctx, logger, request)
 
-		response, err := s.requestHandler.HandleRequest(ctx, userSession, request)
+		responses, err := s.requestHandler.HandleRequest(ctx, userSession, request)
 		if err != nil {
 			logger.ErrorContext(ctx, "failed to handle request",
 				slog.Any("err", err))
 			return
 		}
-		logResponseInfo(ctx, logger, response)
-
-		err = worldConnection.WriteMessage(response)
-		if err != nil {
-			logger.ErrorContext(ctx, "failed to write response packet",
-				slog.Any("err", err))
-			return
+		for _, response := range responses {
+			logResponseInfo(ctx, logger, response)
+			err = worldConnection.WriteMessage(response)
+			if err != nil {
+				logger.ErrorContext(ctx, "failed to write response packet",
+					slog.Any("err", err))
+				return
+			}
 		}
 	}
 }
@@ -102,7 +103,7 @@ func (s *Server) authenticateConnection(ctx context.Context, worldConnection *Wo
 			slog.Any("err", err))
 		return err
 	}
-	logResponseInfo(ctx, logger, response)
+	logResponseInfo(ctx, logger, response[0])
 
 	err = worldConnection.EnableEncryption(userSession.SessionKey)
 	if err != nil {
@@ -111,7 +112,7 @@ func (s *Server) authenticateConnection(ctx context.Context, worldConnection *Wo
 		return err
 	}
 
-	err = worldConnection.WriteMessage(response)
+	err = worldConnection.WriteMessage(response[0])
 	if err != nil {
 		logger.ErrorContext(ctx, "failed to write response packet",
 			slog.Any("err", err))
