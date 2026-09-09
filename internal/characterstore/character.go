@@ -1,7 +1,7 @@
 package characterstore
 
 type Character struct {
-	GUID       uint32
+	GUID       uint64
 	Name       string
 	Race       Race
 	Class      Class
