@@ -3,15 +3,18 @@ package protocol
 type ServerOpcode uint16
 
 const (
-	OpcodeAuthChallenge ServerOpcode = 0x1EC
-	OpcodeAuthResponse  ServerOpcode = 0x1EE
+	ServerOpcodeAuthChallenge ServerOpcode = 0x1EC
+	ServerOpcodeAuthResponse  ServerOpcode = 0x1EE
+	ServerOpcodeAccountTimes  ServerOpcode = 0x209
+	ServerOpcodeCharEnum      ServerOpcode = 0x03B
 )
 
 type ClientOpcode uint32
 
 const (
-	OpcodeAuthSession ClientOpcode = 0x1ED
-	OpcodeCharEnum    ClientOpcode = 0x037
+	ClientOpcodeAuthSession       ClientOpcode = 0x1ED
+	ClientOpcodeCharEnum          ClientOpcode = 0x037
+	ClientOpcodeAccountTimesReady ClientOpcode = 0x4FF
 )
 
 const (
