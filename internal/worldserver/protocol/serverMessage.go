@@ -1,7 +1,8 @@
 package protocol
 
-type serverMessage interface {
-	Encode() []byte
+type ServerMessage interface {
+	EncodeBody() []byte
+	Opcode() ServerOpcode
 }
 
 type ClientMessage interface {

@@ -39,6 +39,16 @@ func GenerateSalt() []byte {
 	return salt
 }
 
+func CalculateWorldServerProof(username string, clientSeed, serverSeed, sessionKey []byte) []byte {
+	hash := sha1.New()
+	hash.Write([]byte(strings.ToUpper(username)))
+	hash.Write(make([]byte, 4))
+	hash.Write(clientSeed)
+	hash.Write(serverSeed)
+	hash.Write(sessionKey)
+	return hash.Sum(nil)
+}
+
 // CalculatePasswordVerifier returns little endian password verifier
 func CalculatePasswordVerifier(username string, password string, salt []byte) []byte {
 	x := bytesToBigInt(calculateX(username, password, salt))

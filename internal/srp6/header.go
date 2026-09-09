@@ -19,7 +19,7 @@ var (
 	}
 )
 
-type HeaderEncryption struct {
+type HeaderCipher struct {
 	sendCipher    *rc4.Cipher
 	receiveCipher *rc4.Cipher
 }
@@ -27,7 +27,7 @@ type HeaderEncryption struct {
 var ErrUninitializedCipher = errors.New("rc4 cipher cannot be used before initialization")
 
 // EncryptHeader encrypts header in place
-func (h *HeaderEncryption) EncryptHeader(header []byte) error {
+func (h *HeaderCipher) EncryptHeader(header []byte) error {
 	if h.sendCipher == nil {
 		return ErrUninitializedCipher
 	}
@@ -35,7 +35,7 @@ func (h *HeaderEncryption) EncryptHeader(header []byte) error {
 	return nil
 }
 
-func (h *HeaderEncryption) DecryptHeader(header []byte) error {
+func (h *HeaderCipher) DecryptHeader(header []byte) error {
 	if h.receiveCipher == nil {
 		return ErrUninitializedCipher
 	}
@@ -43,11 +43,11 @@ func (h *HeaderEncryption) DecryptHeader(header []byte) error {
 	return nil
 }
 
-func (h *HeaderEncryption) Init(sessionKey []byte) error {
+func (h *HeaderCipher) Init(sessionKey []byte) error {
 	return h.initKeys(sessionKey, clientToServerSeed, serverToClientSeed)
 }
 
-func (h *HeaderEncryption) initKeys(sessionKey, receiveSeed, sendSeed []byte) error {
+func (h *HeaderCipher) initKeys(sessionKey, receiveSeed, sendSeed []byte) error {
 	sendStream, err := newStream(sessionKey, sendSeed)
 	if err != nil {
 		return err

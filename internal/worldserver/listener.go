@@ -36,25 +36,56 @@ func (s *Server) handleConnection(ctx context.Context, conn net.Conn) {
 		slog.String("component", "worldserver"))
 	logger.InfoContext(ctx, "received world server connection")
 	userSession := &session{}
+	worldConnection := NewWorldConnection(conn)
 
-	// SMS_AUTH_CHALLENGE kicks off client-worldServer communication
-	authChallengeMessage := handleAuthChallenge(userSession)
-	bytesWritten, err := conn.Write(authChallengeMessage.Encode())
+	// SMSG_AUTH_CHALLENGE
+	challengeMessage := handleAuthChallenge(userSession)
+	err := worldConnection.WriteMessage(challengeMessage)
 	if err != nil {
-		logger.ErrorContext(ctx, "failed to write response")
+		logger.ErrorContext(ctx, "failed to write SMSG_AUTH_CHALLENGE",
+			slog.Any("err", err))
 		return
 	}
-	logger.DebugContext(ctx, "wrote bytes to connection",
-		slog.Int("bytes_written", bytesWritten))
-	for {
-		request, err := DecodeRequest(conn)
-		if err != nil {
-			slog.ErrorContext(ctx, "failed to decode request", slog.Any("err", err))
-			return
-		}
-		logRequestInfo(ctx, logger, request)
-		//response...
+	logResponseInfo(ctx, logger, challengeMessage)
+
+	// CMSG_AUTH_SESSION
+	request, err := protocol.DecodeRequest(conn)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to decode CMSG_AUTH_SESSION request",
+			slog.Any("err", err))
+		return
 	}
+	logRequestInfo(ctx, logger, request)
+
+	// SMSG_AUTH_PROOF
+	response, err := s.requestHandler.HandleRequest(ctx, userSession, request)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to handle CMSG_AUTH_SESSION",
+			slog.Any("err", err))
+		return
+	}
+	logResponseInfo(ctx, logger, response)
+	err = worldConnection.EnableEncryption(userSession.SessionKey)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to enable encryption",
+			slog.Any("err", err))
+		return
+	}
+	err = worldConnection.WriteMessage(response)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to write SMSG_AUTH_PROOF response packet",
+			slog.Any("err", err))
+		return
+	}
+	_, err = protocol.DecodeRequest(conn)
+	if err != nil {
+		logger.ErrorContext(ctx, "failed to decode request packet",
+			slog.Any("err", err))
+	}
+	for {
+
+	}
+
 }
 
 func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.ClientMessage) {
@@ -63,7 +94,21 @@ func logRequestInfo(ctx context.Context, logger *slog.Logger, request protocol.C
 		slog.Int("opcode", int(request.Opcode())))
 	switch request := request.(type) {
 	case protocol.AuthSessionRequest:
-		logger.InfoContext(ctx, "received AuthSessionRequest",
+		logger.InfoContext(ctx, "received CMSG_AUTH_SESSION packet",
 			slog.String("username", request.Username))
+	}
+}
+func logResponseInfo(ctx context.Context, logger *slog.Logger, response protocol.ServerMessage) {
+	logger = logger.With(
+		slog.String("msg_type", "response"),
+		slog.Int("opcode", int(response.Opcode())))
+	switch response := response.(type) {
+	case protocol.AuthChallengeServerMessage:
+		logger.InfoContext(ctx, "sent SMSG_AUTH_CHALLENGE packet, containing server proof",
+			slog.Bool("encryption_enabled", false))
+	case protocol.AuthResponse:
+		logger.InfoContext(ctx, "sent SMSG_AUTH_RESPONSE packet",
+			slog.Any("result", response.ResultCode),
+			slog.Bool("encryption_enabled", true))
 	}
 }
