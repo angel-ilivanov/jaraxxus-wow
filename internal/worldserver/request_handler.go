@@ -16,16 +16,19 @@ type RequestHandler struct {
 	characterStore *characterstore.Store
 }
 
-func (handler RequestHandler) HandleRequest(ctx context.Context, session *session, request protocol.ClientMessage) (protocol.ServerMessage, error) {
+func (handler RequestHandler) HandleRequest(ctx context.Context, session *session, request protocol.ClientMessage) ([]protocol.ServerMessage, error) {
 	switch request := request.(type) {
 	case protocol.AuthSessionRequest:
-		return handler.handleAuthSession(ctx, session, request)
+		response, err := handler.handleAuthSession(ctx, session, request)
+		return []protocol.ServerMessage{response}, err
 	case protocol.AccountDataTimesRequest:
-		return protocol.AccountDataTimesResponse{}, nil
+		return []protocol.ServerMessage{protocol.AccountDataTimesResponse{}}, nil
 	case protocol.CharEnumRequest:
-		return handler.handleCharEnum(ctx, session, request)
+		response, err := handler.handleCharEnum(ctx, session, request)
+		return []protocol.ServerMessage{response}, err
 	case protocol.CharCreateRequest:
-		return handler.handleCharCreate(ctx, session, request)
+		response, err := handler.handleCharCreate(ctx, session, request)
+		return []protocol.ServerMessage{response}, err
 	case protocol.PlayerLoginRequest:
 		return handler.handlePlayerLogin(ctx, session, request)
 	default:
