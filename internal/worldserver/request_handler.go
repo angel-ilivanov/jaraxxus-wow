@@ -5,13 +5,15 @@ import (
 	"errors"
 
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/accountstore"
+	"github.com/angel-ilivanov/jaraxxus-wow/internal/characterstore"
 	"github.com/angel-ilivanov/jaraxxus-wow/internal/worldserver/protocol"
 )
 
 var ErrUnknownRequestType = errors.New("unknown request type")
 
 type RequestHandler struct {
-	store *accountstore.Store
+	accountStore   *accountstore.Store
+	characterStore *characterstore.Store
 }
 
 func (handler RequestHandler) HandleRequest(ctx context.Context, session *session, request protocol.ClientMessage) (protocol.ServerMessage, error) {
@@ -30,6 +32,6 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 	}
 }
 
-func NewRequestHandler(store *accountstore.Store) *RequestHandler {
-	return &RequestHandler{store: store}
+func NewRequestHandler(accountStore *accountstore.Store, characterStore *characterstore.Store) *RequestHandler {
+	return &RequestHandler{accountStore: accountStore, characterStore: characterStore}
 }

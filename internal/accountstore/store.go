@@ -25,6 +25,11 @@ type Authentication struct {
 	Credentials
 }
 
+type WorldAuthentication struct {
+	ID         int64
+	SessionKey []byte
+}
+
 type database interface {
 	QueryRow(context.Context, string, ...any) pgx.Row
 	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
@@ -125,22 +130,22 @@ func (s *Store) SetSessionKey(
 	return nil
 }
 
-func (s *Store) FetchSessionKey(ctx context.Context, username string) ([]byte, error) {
-	var sessionKey []byte
+func (s *Store) FindForWorldAuthentication(ctx context.Context, username string) (WorldAuthentication, error) {
+	var worldAuthentication WorldAuthentication
 	err := s.db.QueryRow(
 		ctx,
-		`SELECT session_key FROM public.account WHERE username = @username`,
+		`SELECT id, session_key FROM public.account WHERE username = @username`,
 		pgx.StrictNamedArgs{
 			"username": username,
 		},
-	).Scan(&sessionKey)
+	).Scan(&worldAuthentication.ID, &worldAuthentication.SessionKey)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("find session key for account: %w", ErrNotFound)
+			return WorldAuthentication{}, fmt.Errorf("find session key for account: %w", ErrNotFound)
 		}
 
-		return nil, fmt.Errorf("find session key for account: %w", err)
+		return WorldAuthentication{}, fmt.Errorf("find session key for account: %w", err)
 	}
 
-	return sessionKey, nil
+	return worldAuthentication, nil
 }
