@@ -26,7 +26,8 @@ func (handler RequestHandler) HandleRequest(ctx context.Context, session *sessio
 		return handler.handleCharEnum(ctx, session, request)
 	case protocol.CharCreateRequest:
 		return handler.handleCharCreate(ctx, session, request)
-		//return nil, fmt.Errorf("handling char creation not yet implemented")
+	case protocol.PlayerLoginRequest:
+		return handler.handlePlayerLogin(ctx, session, request)
 	default:
 		return nil, ErrUnknownRequestType
 	}

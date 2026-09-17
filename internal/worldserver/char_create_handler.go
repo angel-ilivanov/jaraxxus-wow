@@ -9,7 +9,6 @@ import (
 )
 
 func (handler RequestHandler) handleCharCreate(ctx context.Context, session *session, request protocol.CharCreateRequest) (protocol.CharCreateResponse, error) {
-	// TODO: create character in characterStore
 	_, err := handler.characterStore.Insert(ctx, session.AccountId, generateCharacterFromRequest(request))
 	if err != nil {
 		fmt.Println(err)
